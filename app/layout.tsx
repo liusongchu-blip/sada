@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SADA Complete Interactive Prototype",
+  title: "SADA · Live, play, belong",
   description:
-    "Explore all 33 SADA social entertainment product screens, flows and multilingual interactions.",
+    "Join live voice rooms, play with friends and discover tonight's stories on SADA.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en-PK">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
