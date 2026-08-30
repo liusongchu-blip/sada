@@ -208,7 +208,7 @@
   display: block;
   margin-bottom: 5px;
   color: #77736e;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 650;
   letter-spacing: 0.09em;
   line-height: 1.2;
@@ -218,7 +218,7 @@
 .sites-skeleton-status h1 {
   margin: 0;
   color: #18181b;
-  font-size: 21px;
+  font-size: 23px;
   font-weight: 680;
   letter-spacing: -0.028em;
   line-height: 1.2;
@@ -228,7 +228,7 @@
   max-width: 470px;
   margin: 6px 0 0;
   color: #666663;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.42;
 }
 
@@ -285,11 +285,11 @@
   }
 
   .sites-skeleton-status h1 {
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .sites-skeleton-status p {
-    font-size: 13px;
+    font-size: 15px;
   }
 }
 
