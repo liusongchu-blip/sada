@@ -27,8 +27,82 @@ const zh: Record<string, string> = {
   "Platform systems":"平台系统","All mind-map modules":"全部思维导图模块","Mind-map implementation":"思维导图落地","Complete product map":"完整产品地图","Four loops, one operating system.":"四大闭环，一套运营系统。","Every branch from the SADA plan is available as a drill-down prototype.":"SADA 策划案的每个分支均已制作为可逐级查看的原型。","loops":"闭环","modules":"模块","rules":"规则","System modules":"系统模块","Prototype coverage":"原型覆盖","reviewed":"已检查","controls":"控制项","Review complete":"检查完成","Run full module review":"执行完整模块检查",
   "Growth and activity":"增长与活动","Economy, store and VIP":"经济、商城与 VIP","Open partner ecosystem":"开放合作生态","Risk, governance and data":"风控、治理与数据","New-user journey":"新用户旅程","Activity system":"活动系统","30-day cadence":"30 天运营节奏","Growth metrics":"增长指标","Dual currencies":"双币体系","Store catalog":"商城商品体系","Player marketplace":"玩家交易市场","VIP 1–10":"VIP 1–10","Game developers":"游戏开发商","Drama studios":"短剧工作室","Partner console":"合作方后台","Platform control boundary":"平台控制边界","Game output controls":"游戏产出控制","Trade and payment risk":"交易与支付风控","Settlement control":"结算控制","Content safety":"内容安全","Partner governance":"合作方治理","Data monitoring":"数据监控",
   "Search SADA":"搜索 SADA","People, rooms and moments":"用户、房间与精彩时刻","Search people, rooms, games or drama":"搜索用户、房间、游戏或短剧","Clear search":"清除搜索","results":"个结果","View":"查看","Play":"开始游戏","Watch":"观看","SADA profile":"SADA 用户资料","Message":"发消息","Together on SADA":"在 SADA 的共同经历","Live together now":"正在同一房间","mutual friends are listening":"位共同好友正在收听","Recent moments":"最近动态","Invite friends":"邀请好友","Bring your people to SADA":"邀请好友加入 SADA","Invites sent":"邀请已发送","friends received your private SADA invite.":"位好友已收到你的 SADA 私密邀请。","Done":"完成","Your invite link":"你的邀请链接","Copy":"复制","Suggested contacts":"推荐联系人","selected":"已选择","Phone contacts":"手机联系人","Send":"发送","invite":"份邀请","invites":"份邀请","Create a room":"创建房间","Start a live conversation":"开始实时对话","Room preview":"房间预览","Ready to go live":"可以开播了","Room title":"房间名称","Topic":"主题","Stories":"故事","Poetry":"诗歌","Who can join":"谁可以加入","Public":"公开","Friends only":"仅好友","Preview room":"预览房间","Go live":"开始直播","Store bag and purchased items":"商城购物袋与已购商品","Saved":"已收藏","History":"记录","Equipped":"已装备","Use":"使用","Current level":"当前等级","VIP benefits":"VIP 权益","Prestige without unfair advantage":"尊贵体验，不影响公平","Signature frame":"专属头像框","Priority support":"优先客服","Lower fees":"更低手续费","Host presence":"房主专属装扮","Upgrade to VIP 4":"升级至 VIP 4","Confirm upgrade":"确认升级","VIP 4 activated":"VIP 4 已开通","Edit profile":"编辑资料","Identity and preferences":"身份与偏好设置","Change photo":"更换头像","Display name":"显示名称","Bio":"个人简介","City":"城市","Save changes":"保存修改","Game history":"游戏记录","Recent matches and performance":"最近对局与表现","matches":"场对局","wins":"场胜利","win rate":"胜率","Play again":"再玩一局","Invite to the room":"邀请加入房间","Room controls":"房间控制","Share room":"分享房间","Room notifications":"房间通知","Report room":"举报房间",
-  "Payments & billing":"支付与账单","Recharge, receipts and refunds":"充值、回执与退款","Pakistan · PKR":"巴基斯坦 · PKR","Payments":"支付中心","Receipts":"支付回执","Choose a Diamond pack":"选择钻石充值包","Bonus is bound":"赠送钻石为绑定资产","Payment method":"支付方式","Manage":"管理","Secure payment":"安全支付","OTP protection · Clear PKR total · Automatic receipt":"OTP 保护 · 明确 PKR 金额 · 自动保存回执","Review payment":"核对支付订单","No hidden charges":"无隐藏费用","Diamond recharge":"钻石充值","Purchased Diamonds":"购买钻石","Channel fee":"通道费用","Included":"已包含","Tax":"税费","Total to pay":"应付总额","SADA protected payment":"SADA 支付保护","Continue securely":"安全继续","Preview failed payment state":"查看支付失败状态","Verify payment":"验证支付","Enter the 6-digit code":"输入 6 位验证码","One-time code":"一次性验证码","Resend code":"重新发送验证码","Daily recharge limit":"每日充值限额","Confirming payment":"正在确认支付","Payment successful":"支付成功","Diamonds added":"钻石已到账","New balance":"最新余额","View receipt":"查看支付回执","Return to Wallet":"返回钱包","Payment history":"支付记录","Receipts and support":"回执与客服支持","Successful this month":"本月支付成功","Refund review":"退款审核中","Payment receipt":"支付回执","Purchase protection":"购买保护","Request refund or report a problem":"申请退款或报告问题","Refund request":"退款申请","What happened?":"遇到了什么问题？","Purchase made by mistake":"误操作购买","Diamonds not received":"钻石未到账","Duplicate payment":"重复支付","Payment not authorized":"非本人授权支付","Before you submit":"提交前请确认","Submit refund request":"提交退款申请","Payment not completed":"支付未完成","No money was charged":"未扣除任何款项","Try again":"重新尝试","Change pack or method":"更换充值包或支付方式","Order status":"订单状态","Declined":"已拒绝"
+  "Payments & billing":"支付与账单","Recharge, receipts and refunds":"充值、回执与退款","Pakistan · PKR":"巴基斯坦 · PKR","Payments":"支付中心","Receipts":"支付回执","Choose a Diamond pack":"选择钻石充值包","Bonus is bound":"赠送钻石为绑定资产","Payment method":"支付方式","Manage":"管理","Secure payment":"安全支付","OTP protection · Clear PKR total · Automatic receipt":"OTP 保护 · 明确 PKR 金额 · 自动保存回执","Review payment":"核对支付订单","No hidden charges":"无隐藏费用","Diamond recharge":"钻石充值","Purchased Diamonds":"购买钻石","Channel fee":"通道费用","Included":"已包含","Tax":"税费","Total to pay":"应付总额","SADA protected payment":"SADA 支付保护","Continue securely":"安全继续","Preview failed payment state":"查看支付失败状态","Verify payment":"验证支付","Enter the 6-digit code":"输入 6 位验证码","One-time code":"一次性验证码","Resend code":"重新发送验证码","Daily recharge limit":"每日充值限额","Confirming payment":"正在确认支付","Payment successful":"支付成功","Diamonds added":"钻石已到账","New balance":"最新余额","View receipt":"查看支付回执","Return to Wallet":"返回钱包","Payment history":"支付记录","Receipts and support":"回执与客服支持","Successful this month":"本月支付成功","Refund review":"退款审核中","Payment receipt":"支付回执","Purchase protection":"购买保护","Request refund or report a problem":"申请退款或报告问题","Refund request":"退款申请","What happened?":"遇到了什么问题？","Purchase made by mistake":"误操作购买","Diamonds not received":"钻石未到账","Duplicate payment":"重复支付","Payment not authorized":"非本人授权支付","Before you submit":"提交前请确认","Submit refund request":"提交退款申请","Payment not completed":"支付未完成","No money was charged":"未扣除任何款项","Try again":"重新尝试","Change pack or method":"更换充值包或支付方式","Order status":"订单状态","Declined":"已拒绝","Payment methods":"支付方式管理","Saved securely":"安全保存","Your payment details stay protected":"你的支付信息受到保护","Add payment method":"添加支付方式","Mobile wallet":"手机钱包","Bank card":"银行卡","Save and use method":"保存并使用","Cancel":"取消","Default":"默认","Use":"使用","Provider-protected setup":"支付服务商安全设置","Demo mode: no banking details leave this device and no real charge is created.":"演示模式：银行信息不会离开本机，也不会产生真实扣款。"
 };
+
+Object.assign(zh, {
+  "SADA stores provider tokens, never your full card or wallet credentials.": "SADA 仅保存支付服务商令牌，不会保存完整银行卡或钱包凭证。",
+  "Payment method added and selected": "支付方式已添加并选中",
+  "Payment method removed": "支付方式已移除",
+  "Pakistan mobile number": "巴基斯坦手机号码",
+  "Card number": "银行卡号",
+  "Verification continues with your mobile wallet provider.": "验证将在你的手机钱包服务商处继续。",
+  "Only the last four digits are retained in this prototype.": "此原型仅保留卡号后四位。",
+  "Use the number registered with your wallet.": "请输入钱包注册手机号码。",
+  "A real integration will use Stripe Checkout or Payment Element tokenization.": "正式接入将使用 Stripe Checkout 或 Payment Element 令牌化。",
+});
+
+Object.assign(zh, {
+  "Complete operation flows": "完整操作流程",
+  "13 end-to-end product journeys": "13 条端到端产品流程",
+  "complete flows": "条完整流程",
+  "Operation steps": "操作步骤",
+  "with system feedback": "包含系统反馈",
+  "Every step includes": "每一步包含",
+  "action, response, rule, exception": "动作、反馈、规则、异常",
+  "User flow": "用户流程",
+  "User": "用户",
+  "Commerce flow": "商业化流程",
+  "Commerce": "商业化",
+  "Partner flow": "合作方流程",
+  "Partner": "合作方",
+  "Governance flow": "治理流程",
+  "Governance": "治理",
+  "flow": "流程",
+  "steps": "步",
+  "How to review this prototype": "如何查看本原型",
+  "Open a flow to step through user action, SADA response, business rule and exception handling. The final button opens the corresponding interactive product screen.": "打开任一流程，可逐步查看用户动作、SADA 反馈、业务规则和异常处理；最后可进入对应的交互页面。",
+  "Current product moment": "当前产品环节",
+  "User action": "用户动作",
+  "SADA response": "SADA 系统反馈",
+  "Business and safety rule": "业务与安全规则",
+  "Exception branch": "异常分支",
+  "Previous": "上一步",
+  "Next step": "下一步",
+  "Complete flow": "完成流程",
+  "View all exception branches": "查看全部异常分支",
+  "Exception and recovery paths": "异常与恢复路径",
+  "End-to-end path reviewed": "端到端流程已检查",
+  "Primary flow, product response, control rule and exception branches have been covered.": "主流程、产品反馈、控制规则和异常分支均已覆盖。",
+  "Review again": "重新检查",
+  "Open interactive screen": "打开交互页面",
+  "New user activation": "新用户激活",
+  "Friendship and private chat": "好友关系与私聊",
+  "Voice room listener": "语聊房听众流程",
+  "Voice room host": "语聊房主持流程",
+  "Social game session": "社交游戏流程",
+  "Drama discovery and unlock": "短剧发现与解锁",
+  "Recharge and payment recovery": "充值与支付恢复",
+  "Store purchase and VIP": "商城购买与 VIP",
+  "Marketplace trade": "交易所交易",
+  "Game developer publishing": "游戏开发商上架",
+  "Drama studio publishing": "短剧工作室上架",
+  "Report, block and appeal": "举报、拉黑与申诉",
+  "Customer support case": "客服工单流程"
+  ,"From phone verification to first social relationship": "从手机验证到建立第一段社交关系"
+  ,"Discover, request, accept, chat and play together": "发现用户、发送请求、接受、聊天并共同游戏"
+  ,"Enter, interact, speak, gift and leave safely": "进入、互动、上麦、送礼并安全离开"
+  ,"Create, moderate and close a live room": "创建、管理并结束实时语聊房"
+  ,"Match, play, settle rewards and rematch": "匹配、游戏、奖励结算与再来一局"
+  ,"Watch, unlock, follow and discuss a series": "观看、解锁、追更并讨论短剧"
+  ,"Select pack, pay, receive assets and resolve exceptions": "选择礼包、支付、资产到账并处理异常"
+  ,"Preview, recharge if needed, purchase and equip": "预览、按需充值、购买并装备"
+  ,"List, buy, risk-check and settle a collectible": "上架、购买、风控检查与收藏品结算"
+  ,"Apply, integrate, review, launch and settle": "申请、接入、审核、发布与结算"
+  ,"Upload rights, episodes, subtitles and release schedule": "上传版权、剧集、字幕与发行计划"
+  ,"Protect the user while preserving due process": "保护用户并保留完整处置与申诉程序"
+  ,"Self-service, ticket, resolution and feedback": "自助服务、工单、解决与反馈"
+});
 
 const ur: Record<string, string> = {
   "Back":"واپس","Close":"بند کریں","Done":"مکمل","All":"سب","Rules":"قواعد","Live now":"ابھی لائیو","Live conversations":"لائیو گفتگو","Voice rooms":"وائس رومز","Search rooms":"روم تلاش کریں","For you":"آپ کے لیے","Music":"موسیقی","Games":"گیمز","New":"نیا","Friends are here":"دوست یہاں ہیں","+ Start a room":"+ روم شروع کریں","Leave room":"روم چھوڑیں","More options":"مزید اختیارات","Host · Karachi":"میزبان · کراچی","Following":"فالو کیا ہوا","Follow":"فالو کریں","Say salaam…":"سلام کہیں…","Send":"بھیجیں","Invite":"دعوت دیں","Unmute":"آواز کھولیں","Mute":"خاموش","Gift":"تحفہ","Leave":"چھوڑیں","Send a room gift":"روم تحفہ بھیجیں","Send a moment":"ایک لمحہ بھیجیں",
@@ -51,8 +125,78 @@ const ur: Record<string, string> = {
   "Platform systems":"پلیٹ فارم سسٹمز","All mind-map modules":"تمام مائنڈ میپ ماڈیولز","Mind-map implementation":"مائنڈ میپ نفاذ","Complete product map":"مکمل پروڈکٹ نقشہ","Four loops, one operating system.":"چار حلقے، ایک آپریٹنگ سسٹم۔","Every branch from the SADA plan is available as a drill-down prototype.":"SADA پلان کی ہر شاخ تفصیلی پروٹوٹائپ میں دستیاب ہے۔","loops":"حلقے","modules":"ماڈیولز","rules":"قواعد","System modules":"سسٹم ماڈیولز","Prototype coverage":"پروٹوٹائپ کوریج","reviewed":"جائزہ شدہ","controls":"کنٹرولز","Review complete":"جائزہ مکمل","Run full module review":"مکمل ماڈیول جائزہ چلائیں",
   "Growth and activity":"ترقی اور سرگرمی","Economy, store and VIP":"معیشت، اسٹور اور VIP","Open partner ecosystem":"اوپن پارٹنر ایکو سسٹم","Risk, governance and data":"خطرہ، نظم اور ڈیٹا","New-user journey":"نئے صارف کا سفر","Activity system":"سرگرمی سسٹم","30-day cadence":"30 روزہ ترتیب","Growth metrics":"ترقی کے اشاریے","Dual currencies":"دو کرنسیاں","Store catalog":"اسٹور کیٹلاگ","Player marketplace":"کھلاڑی مارکیٹ","VIP 1–10":"VIP 1–10","Game developers":"گیم ڈویلپرز","Drama studios":"ڈرامہ اسٹوڈیوز","Partner console":"پارٹنر کنسول","Platform control boundary":"پلیٹ فارم کنٹرول حدود","Game output controls":"گیم آؤٹ پٹ کنٹرول","Trade and payment risk":"تجارت اور ادائیگی خطرہ","Settlement control":"سیٹلمنٹ کنٹرول","Content safety":"مواد کی حفاظت","Partner governance":"پارٹنر نظم","Data monitoring":"ڈیٹا مانیٹرنگ",
   "Search SADA":"SADA تلاش کریں","People, rooms and moments":"لوگ، رومز اور لمحات","Search people, rooms, games or drama":"لوگ، رومز، گیمز یا ڈرامہ تلاش کریں","Clear search":"تلاش صاف کریں","results":"نتائج","View":"دیکھیں","Play":"کھیلیں","Watch":"دیکھیں","SADA profile":"SADA پروفائل","Message":"پیغام","Together on SADA":"SADA پر ساتھ","Live together now":"ابھی ساتھ لائیو","mutual friends are listening":"مشترکہ دوست سن رہے ہیں","Recent moments":"حالیہ لمحات","Invite friends":"دوستوں کو بلائیں","Bring your people to SADA":"اپنے دوستوں کو SADA پر لائیں","Invites sent":"دعوتیں بھیج دی گئیں","friends received your private SADA invite.":"دوستوں کو آپ کی نجی SADA دعوت ملی۔","Done":"مکمل","Your invite link":"آپ کا دعوتی لنک","Copy":"کاپی","Suggested contacts":"تجویز کردہ رابطے","selected":"منتخب","Phone contacts":"فون رابطے","Send":"بھیجیں","invite":"دعوت","invites":"دعوتیں","Create a room":"روم بنائیں","Start a live conversation":"لائیو گفتگو شروع کریں","Room preview":"روم پیش نظارہ","Ready to go live":"لائیو ہونے کے لیے تیار","Room title":"روم کا نام","Topic":"موضوع","Stories":"کہانیاں","Poetry":"شاعری","Who can join":"کون شامل ہو سکتا ہے","Public":"عوامی","Friends only":"صرف دوست","Preview room":"روم دیکھیں","Go live":"لائیو جائیں","Store bag and purchased items":"اسٹور بیگ اور خریدی اشیاء","Saved":"محفوظ","History":"ریکارڈ","Equipped":"استعمال میں","Use":"استعمال کریں","Current level":"موجودہ لیول","VIP benefits":"VIP فوائد","Prestige without unfair advantage":"وقار، بغیر غیر منصفانہ فائدے","Signature frame":"خصوصی فریم","Priority support":"ترجیحی مدد","Lower fees":"کم فیس","Host presence":"میزبان کی شناخت","Upgrade to VIP 4":"VIP 4 پر اپ گریڈ","Confirm upgrade":"اپ گریڈ کی تصدیق","VIP 4 activated":"VIP 4 فعال ہو گیا","Edit profile":"پروفائل میں ترمیم","Identity and preferences":"شناخت اور ترجیحات","Change photo":"تصویر بدلیں","Display name":"ظاہری نام","Bio":"تعارف","City":"شہر","Save changes":"تبدیلیاں محفوظ کریں","Game history":"گیم ریکارڈ","Recent matches and performance":"حالیہ میچ اور کارکردگی","matches":"میچ","wins":"جیت","win rate":"جیت کی شرح","Play again":"دوبارہ کھیلیں","Invite to the room":"روم میں مدعو کریں","Room controls":"روم کنٹرولز","Share room":"روم شیئر کریں","Room notifications":"روم اطلاعات","Report room":"روم رپورٹ کریں",
-  "Payments & billing":"ادائیگی اور بلنگ","Recharge, receipts and refunds":"ری چارج، رسیدیں اور ریفنڈ","Pakistan · PKR":"پاکستان · PKR","Payments":"ادائیگیاں","Receipts":"رسیدیں","Choose a Diamond pack":"ڈائمنڈ پیک منتخب کریں","Bonus is bound":"بونس ڈائمنڈ منسلک ہیں","Payment method":"ادائیگی کا طریقہ","Manage":"انتظام کریں","Secure payment":"محفوظ ادائیگی","OTP protection · Clear PKR total · Automatic receipt":"OTP تحفظ · واضح PKR رقم · خودکار رسید","Review payment":"ادائیگی چیک کریں","No hidden charges":"کوئی پوشیدہ چارج نہیں","Diamond recharge":"ڈائمنڈ ری چارج","Purchased Diamonds":"خریدے گئے ڈائمنڈز","Channel fee":"چینل فیس","Included":"شامل","Tax":"ٹیکس","Total to pay":"کل قابل ادائیگی","SADA protected payment":"SADA محفوظ ادائیگی","Continue securely":"محفوظ طریقے سے جاری رکھیں","Preview failed payment state":"ناکام ادائیگی دیکھیں","Verify payment":"ادائیگی کی تصدیق","Enter the 6-digit code":"6 ہندسوں کا کوڈ درج کریں","One-time code":"ایک بار کا کوڈ","Resend code":"کوڈ دوبارہ بھیجیں","Daily recharge limit":"روزانہ ری چارج حد","Confirming payment":"ادائیگی کی تصدیق ہو رہی ہے","Payment successful":"ادائیگی کامیاب","Diamonds added":"ڈائمنڈز شامل ہو گئے","New balance":"نیا بیلنس","View receipt":"رسید دیکھیں","Return to Wallet":"والیٹ پر واپس جائیں","Payment history":"ادائیگی ریکارڈ","Receipts and support":"رسیدیں اور مدد","Successful this month":"اس ماہ کامیاب","Refund review":"ریفنڈ زیر جائزہ","Payment receipt":"ادائیگی رسید","Purchase protection":"خریداری کا تحفظ","Request refund or report a problem":"ریفنڈ یا مسئلہ رپورٹ کریں","Refund request":"ریفنڈ درخواست","What happened?":"کیا ہوا؟","Purchase made by mistake":"غلطی سے خریداری","Diamonds not received":"ڈائمنڈز موصول نہیں ہوئے","Duplicate payment":"دہری ادائیگی","Payment not authorized":"غیر مجاز ادائیگی","Before you submit":"جمع کرنے سے پہلے","Submit refund request":"ریفنڈ درخواست جمع کریں","Payment not completed":"ادائیگی مکمل نہیں ہوئی","No money was charged":"کوئی رقم نہیں کٹی","Try again":"دوبارہ کوشش کریں","Change pack or method":"پیک یا طریقہ بدلیں","Order status":"آرڈر کی حیثیت","Declined":"مسترد"
+  "Payments & billing":"ادائیگی اور بلنگ","Recharge, receipts and refunds":"ری چارج، رسیدیں اور ریفنڈ","Pakistan · PKR":"پاکستان · PKR","Payments":"ادائیگیاں","Receipts":"رسیدیں","Choose a Diamond pack":"ڈائمنڈ پیک منتخب کریں","Bonus is bound":"بونس ڈائمنڈ منسلک ہیں","Payment method":"ادائیگی کا طریقہ","Manage":"انتظام کریں","Secure payment":"محفوظ ادائیگی","OTP protection · Clear PKR total · Automatic receipt":"OTP تحفظ · واضح PKR رقم · خودکار رسید","Review payment":"ادائیگی چیک کریں","No hidden charges":"کوئی پوشیدہ چارج نہیں","Diamond recharge":"ڈائمنڈ ری چارج","Purchased Diamonds":"خریدے گئے ڈائمنڈز","Channel fee":"چینل فیس","Included":"شامل","Tax":"ٹیکس","Total to pay":"کل قابل ادائیگی","SADA protected payment":"SADA محفوظ ادائیگی","Continue securely":"محفوظ طریقے سے جاری رکھیں","Preview failed payment state":"ناکام ادائیگی دیکھیں","Verify payment":"ادائیگی کی تصدیق","Enter the 6-digit code":"6 ہندسوں کا کوڈ درج کریں","One-time code":"ایک بار کا کوڈ","Resend code":"کوڈ دوبارہ بھیجیں","Daily recharge limit":"روزانہ ری چارج حد","Confirming payment":"ادائیگی کی تصدیق ہو رہی ہے","Payment successful":"ادائیگی کامیاب","Diamonds added":"ڈائمنڈز شامل ہو گئے","New balance":"نیا بیلنس","View receipt":"رسید دیکھیں","Return to Wallet":"والیٹ پر واپس جائیں","Payment history":"ادائیگی ریکارڈ","Receipts and support":"رسیدیں اور مدد","Successful this month":"اس ماہ کامیاب","Refund review":"ریفنڈ زیر جائزہ","Payment receipt":"ادائیگی رسید","Purchase protection":"خریداری کا تحفظ","Request refund or report a problem":"ریفنڈ یا مسئلہ رپورٹ کریں","Refund request":"ریفنڈ درخواست","What happened?":"کیا ہوا؟","Purchase made by mistake":"غلطی سے خریداری","Diamonds not received":"ڈائمنڈز موصول نہیں ہوئے","Duplicate payment":"دہری ادائیگی","Payment not authorized":"غیر مجاز ادائیگی","Before you submit":"جمع کرنے سے پہلے","Submit refund request":"ریفنڈ درخواست جمع کریں","Payment not completed":"ادائیگی مکمل نہیں ہوئی","No money was charged":"کوئی رقم نہیں کٹی","Try again":"دوبارہ کوشش کریں","Change pack or method":"پیک یا طریقہ بدلیں","Order status":"آرڈر کی حیثیت","Declined":"مسترد","Payment methods":"ادائیگی کے طریقے","Saved securely":"محفوظ طریقے سے محفوظ","Your payment details stay protected":"آپ کی ادائیگی کی تفصیلات محفوظ ہیں","Add payment method":"ادائیگی کا طریقہ شامل کریں","Mobile wallet":"موبائل والیٹ","Bank card":"بینک کارڈ","Save and use method":"محفوظ کریں اور استعمال کریں","Cancel":"منسوخ","Default":"ڈیفالٹ","Use":"استعمال کریں","Provider-protected setup":"فراہم کنندہ کی محفوظ ترتیب","Demo mode: no banking details leave this device and no real charge is created.":"ڈیمو موڈ: بینک تفصیلات اس ڈیوائس سے باہر نہیں جاتیں اور کوئی حقیقی چارج نہیں ہوتا۔"
 };
+
+Object.assign(ur, {
+  "SADA stores provider tokens, never your full card or wallet credentials.": "SADA صرف فراہم کنندہ کے ٹوکن محفوظ کرتا ہے، مکمل کارڈ یا والیٹ معلومات نہیں۔",
+  "Payment method added and selected": "ادائیگی کا طریقہ شامل اور منتخب ہو گیا",
+  "Payment method removed": "ادائیگی کا طریقہ ہٹا دیا گیا",
+  "Pakistan mobile number": "پاکستانی موبائل نمبر",
+  "Card number": "کارڈ نمبر",
+  "Verification continues with your mobile wallet provider.": "تصدیق آپ کے موبائل والیٹ فراہم کنندہ کے ساتھ جاری رہے گی۔",
+  "Only the last four digits are retained in this prototype.": "اس پروٹوٹائپ میں صرف آخری چار ہندسے رکھے جاتے ہیں۔",
+  "Use the number registered with your wallet.": "اپنے والیٹ کے ساتھ رجسٹرڈ نمبر استعمال کریں۔",
+  "A real integration will use Stripe Checkout or Payment Element tokenization.": "حقیقی انضمام Stripe Checkout یا Payment Element ٹوکنائزیشن استعمال کرے گا۔",
+  "Complete operation flows": "مکمل عملی مراحل",
+  "13 end-to-end product journeys": "13 مکمل پروڈکٹ سفر",
+  "complete flows": "مکمل فلو",
+  "Operation steps": "عملی مراحل",
+  "with system feedback": "سسٹم فیڈبیک کے ساتھ",
+  "Every step includes": "ہر مرحلے میں",
+  "action, response, rule, exception": "عمل، جواب، قاعدہ، استثنا",
+  "How to review this prototype": "اس پروٹوٹائپ کو کیسے دیکھیں",
+  "Open a flow to step through user action, SADA response, business rule and exception handling. The final button opens the corresponding interactive product screen.": "کسی فلو کو کھول کر صارف کا عمل، SADA کا جواب، کاروباری قاعدہ اور استثنائی حل مرحلہ وار دیکھیں۔ آخری بٹن متعلقہ انٹرایکٹو اسکرین کھولتا ہے۔",
+  "User flow": "صارف فلو",
+  "User": "صارف",
+  "Commerce flow": "تجارتی فلو",
+  "Commerce": "تجارت",
+  "Partner flow": "پارٹنر فلو",
+  "Partner": "پارٹنر",
+  "Governance flow": "نظم و ضبط فلو",
+  "Governance": "نظم و ضبط",
+  "flow": "فلو",
+  "steps": "مراحل",
+  "Current product moment": "موجودہ پروڈکٹ مرحلہ",
+  "User action": "صارف کا عمل",
+  "SADA response": "SADA کا جواب",
+  "Business and safety rule": "کاروباری اور حفاظتی قاعدہ",
+  "Exception branch": "استثنائی راستہ",
+  "Previous": "پچھلا",
+  "Next step": "اگلا مرحلہ",
+  "Complete flow": "فلو مکمل کریں",
+  "View all exception branches": "تمام استثنائی راستے دیکھیں",
+  "Exception and recovery paths": "استثنا اور بحالی کے راستے",
+  "End-to-end path reviewed": "مکمل راستہ جانچ لیا گیا",
+  "Review again": "دوبارہ دیکھیں",
+  "Open interactive screen": "انٹرایکٹو اسکرین کھولیں",
+  "New user activation": "نئے صارف کی فعالیت",
+  "Friendship and private chat": "دوستی اور نجی چیٹ",
+  "Voice room listener": "وائس روم سامع",
+  "Voice room host": "وائس روم میزبان",
+  "Social game session": "سماجی گیم سیشن",
+  "Drama discovery and unlock": "ڈرامہ تلاش اور ان لاک",
+  "Recharge and payment recovery": "ری چارج اور ادائیگی بحالی",
+  "Store purchase and VIP": "اسٹور خریداری اور VIP",
+  "Marketplace trade": "مارکیٹ تجارت",
+  "Game developer publishing": "گیم ڈویلپر اشاعت",
+  "Drama studio publishing": "ڈرامہ اسٹوڈیو اشاعت",
+  "Report, block and appeal": "رپورٹ، بلاک اور اپیل",
+  "Customer support case": "کسٹمر سپورٹ کیس",
+  "From phone verification to first social relationship": "فون کی تصدیق سے پہلے سماجی تعلق تک",
+  "Discover, request, accept, chat and play together": "تلاش، درخواست، قبول، چیٹ اور ساتھ کھیلنا",
+  "Enter, interact, speak, gift and leave safely": "داخل ہوں، بات کریں، تحفہ دیں اور محفوظ نکلیں",
+  "Create, moderate and close a live room": "لائیو روم بنائیں، سنبھالیں اور بند کریں",
+  "Match, play, settle rewards and rematch": "میچ، کھیل، انعام کی ادائیگی اور دوبارہ میچ",
+  "Watch, unlock, follow and discuss a series": "دیکھیں، ان لاک کریں، فالو اور گفتگو کریں",
+  "Select pack, pay, receive assets and resolve exceptions": "پیک منتخب کریں، ادائیگی، اثاثے وصول اور مسائل حل کریں",
+  "Preview, recharge if needed, purchase and equip": "پیش نظارہ، ضرورت پر ری چارج، خرید اور استعمال",
+  "List, buy, risk-check and settle a collectible": "لسٹ، خرید، خطرہ جانچ اور کلیکٹیبل سیٹلمنٹ",
+  "Apply, integrate, review, launch and settle": "درخواست، انضمام، جائزہ، لانچ اور سیٹلمنٹ",
+  "Upload rights, episodes, subtitles and release schedule": "حقوق، اقساط، سب ٹائٹل اور ریلیز شیڈول اپ لوڈ",
+  "Protect the user while preserving due process": "درست طریقہ برقرار رکھتے ہوئے صارف کا تحفظ",
+  "Self-service, ticket, resolution and feedback": "خود مدد، ٹکٹ، حل اور فیڈبیک",
+});
 
 const originals = new WeakMap<Node, string>();
 const originalAttributes = new WeakMap<Element, Map<string, string>>();

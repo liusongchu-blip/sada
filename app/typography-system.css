@@ -1,0 +1,106 @@
+@font-face {
+  font-family: "Source Han Sans SADA";
+  src: url("/fonts/source-han-sans-cn-vf.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 250 900;
+  font-display: swap;
+}
+
+:root {
+  --font-ui: "Source Han Sans SADA", "Source Han Sans SC", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --weight-display: 800;
+  --weight-section: 700;
+  --weight-component: 650;
+  --weight-control: 600;
+  --weight-body: 400;
+  --weight-caption: 400;
+}
+
+html,
+body {
+  font-family: var(--font-ui) !important;
+  font-weight: var(--weight-body);
+}
+
+/* One type family across the whole product. The Urdu stack is used glyph-by-glyph
+   only where Source Han Sans has no Arabic-script glyph. */
+.app-frame,
+.app-frame * {
+  font-family: var(--font-ui) !important;
+  font-synthesis: none;
+  font-kerning: normal;
+  font-feature-settings: "kern" 1, "pwid" 1;
+}
+
+.app-frame[lang="ur-PK"],
+.app-frame[lang="ur-PK"] * {
+  font-family: "Source Han Sans SADA", "Noto Nastaliq Urdu", "Noto Sans Arabic", "Geeza Pro", sans-serif !important;
+}
+
+.app-frame {
+  font-weight: var(--weight-body);
+}
+
+/* Heading hierarchy: strongest at page level, progressively lighter below. */
+.app-frame h1,
+.account-hero h1,
+.account-form h1,
+.payment-state h1 {
+  font-weight: var(--weight-display) !important;
+}
+
+.app-frame h2,
+.profile-peek-identity h2,
+.public-profile h2,
+.room-preview h2,
+.flow-success h2,
+.mini-success h2 {
+  font-weight: var(--weight-section) !important;
+}
+
+.app-frame h3,
+.app-frame strong,
+.media-content strong,
+.profile-actions strong,
+.payment-packs strong,
+.store-product-grid strong,
+.benefit-list strong,
+.system-module-list strong {
+  font-weight: var(--weight-component) !important;
+}
+
+.app-frame button,
+.app-frame input,
+.app-frame textarea,
+.app-frame select,
+.app-frame label,
+.app-frame b {
+  font-weight: var(--weight-control);
+}
+
+.app-frame p,
+.app-frame span,
+.app-frame em {
+  font-weight: var(--weight-body);
+}
+
+.app-frame small,
+.app-frame .profile-peek-hint {
+  font-weight: var(--weight-caption) !important;
+}
+
+.wordmark,
+.account-brand {
+  font-weight: var(--weight-section) !important;
+}
+
+/* Numeric totals need authority without competing with page titles. */
+.balance,
+.payment-balance strong,
+.wallet-hero strong,
+.coin-balance,
+.vip-level-card strong,
+.payment-state-order strong {
+  font-weight: var(--weight-section) !important;
+  font-variant-numeric: tabular-nums;
+}

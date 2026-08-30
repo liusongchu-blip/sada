@@ -1,0 +1,333 @@
+/*
+ * SADA daytime palette
+ * Reference colors: #4D88FD / #B84DF5 / #ED74BD on true white.
+ * This file is intentionally scoped to .theme-day so the original night UI
+ * remains byte-for-byte identical in appearance.
+ */
+.theme-day {
+  --night-950: #ffffff;
+  --night-900: #f8faff;
+  --emerald-900: #f5f7ff;
+  --emerald-800: #ffffff;
+  --emerald-700: #eef2ff;
+  --mint: #4d88fd;
+  --cyan: #36c4e4;
+  --gold: #b84df5;
+  --ivory: #11163f;
+  --secondary: #626985;
+  --tertiary: #9298ad;
+  --action-gold-950: #315fc4;
+  --action-gold-900: #4d88fd;
+  --action-gold-800: #6b76fb;
+  --action-gold-700: #9d58f7;
+  --action-gold-600: #b84df5;
+  --action-gold-500: #d45bd9;
+  --action-gold-300: #ed74bd;
+  --action-gold-100: #ffffff;
+  --action-gold-border: rgba(184, 77, 245, 0.45);
+  --action-gold-shadow: rgba(77, 136, 253, 0.22);
+  background:
+    radial-gradient(circle at 18% 8%, rgba(77, 136, 253, 0.12), transparent 27%),
+    radial-gradient(circle at 82% 92%, rgba(237, 116, 189, 0.11), transparent 30%),
+    #f7f9ff;
+  color: var(--ivory);
+  color-scheme: light;
+}
+
+.theme-day .app-frame {
+  background:
+    radial-gradient(circle at 94% 8%, rgba(184, 77, 245, 0.1), transparent 25%),
+    radial-gradient(circle at 4% 70%, rgba(77, 136, 253, 0.08), transparent 27%),
+    #ffffff;
+  border-color: rgba(77, 136, 253, 0.14);
+  box-shadow: 0 34px 90px rgba(54, 70, 133, 0.17);
+}
+
+.theme-day .app-frame:before {
+  opacity: 0.72;
+  background:
+    radial-gradient(circle at 88% 7%, rgba(184, 77, 245, 0.09), transparent 24%),
+    radial-gradient(circle at 8% 74%, rgba(77, 136, 253, 0.06), transparent 26%);
+}
+
+.theme-day .app-header {
+  border-bottom-color: rgba(77, 136, 253, 0.08);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(18px);
+}
+
+.theme-day .wordmark {
+  background: linear-gradient(110deg, #4d88fd 0%, #b84df5 54%, #ed74bd 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.theme-day .icon-button,
+.theme-day .balance,
+.theme-day .screen-back,
+.theme-day .filter-row button,
+.theme-day .quick-games button,
+.theme-day .history-summary span,
+.theme-day .inventory-summary > div,
+.theme-day .payment-summary > span,
+.theme-day .system-hub-grid > button,
+.theme-day .system-module-list > button,
+.theme-day .season-phases button,
+.theme-day .risk-limits article,
+.theme-day .partner-cards article,
+.theme-day .benefit-grid > button,
+.theme-day .benefit-list article,
+.theme-day .collection-grid button,
+.theme-day .inventory-grid > button,
+.theme-day .gift-grid button,
+.theme-day .recharge-grid button,
+.theme-day .payment-packs button,
+.theme-day .payment-methods > button,
+.theme-day .managed-methods article,
+.theme-day .review-pack,
+.theme-day .receipt-hero,
+.theme-day .refund-order,
+.theme-day .refund-reasons button,
+.theme-day .room-form input,
+.theme-day .room-form textarea,
+.theme-day .room-form select,
+.theme-day .account-form input,
+.theme-day .add-method-field input,
+.theme-day .system-sheet textarea {
+  border-color: rgba(77, 136, 253, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ivory);
+  box-shadow: 0 8px 24px rgba(54, 70, 133, 0.06);
+}
+
+.theme-day .icon-button,
+.theme-day .screen-back,
+.theme-day .sheet-close,
+.theme-day .profile-peek-close,
+.theme-day .payment-head-action,
+.theme-day .store-head-actions button,
+.theme-day .room-dock button,
+.theme-day .managed-method-remove,
+.theme-day .language-toggle {
+  border-color: rgba(77, 136, 253, 0.18) !important;
+  background: linear-gradient(145deg, #ffffff, #f4f1ff) !important;
+  color: #b84df5 !important;
+  box-shadow: 0 7px 18px rgba(54, 70, 133, 0.09), inset 0 1px 0 #ffffff !important;
+}
+
+.theme-day .balance {
+  border-color: rgba(77, 136, 253, 0.18) !important;
+  background: linear-gradient(145deg, #ffffff, #f2f6ff) !important;
+  color: #4d88fd !important;
+  box-shadow: 0 7px 18px rgba(54, 70, 133, 0.08), inset 0 1px 0 #ffffff !important;
+}
+
+.theme-day .friend-rail > button:not(.add-friend) {
+  border-color: rgba(184, 77, 245, 0.14) !important;
+  background: linear-gradient(145deg, #ffffff, #f6f3ff) !important;
+  box-shadow: 0 6px 16px rgba(54, 70, 133, 0.08) !important;
+}
+
+.theme-day .bottom-nav button,
+.theme-day .bottom-nav button:hover,
+.theme-day .bottom-nav button.active {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.theme-day .bottom-nav button.active {
+  border-color: rgba(184, 77, 245, 0.08) !important;
+  background: linear-gradient(180deg, rgba(184, 77, 245, 0.1), rgba(77, 136, 253, 0.035)) !important;
+  color: #b84df5 !important;
+}
+
+.theme-day .balance,
+.theme-day .filter-row button.active,
+.theme-day .language-menu span,
+.theme-day .section-heading button,
+.theme-day .room-list-item em,
+.theme-day .profile-actions > button,
+.theme-day .people-list button > b,
+.theme-day .playing-now button > b,
+.theme-day .conversation-list em b,
+.theme-day .safety-status,
+.theme-day .leaderboard em,
+.theme-day .settlement-list article > b {
+  color: #4d88fd;
+}
+
+.theme-day .avatar {
+  background: linear-gradient(145deg, #ed74bd 0%, #b84df5 50%, #4d88fd 100%);
+  box-shadow: 0 6px 18px rgba(77, 136, 253, 0.2);
+}
+
+.theme-day .avatar-photo,
+.theme-day .online-dot {
+  border-color: #ffffff;
+}
+
+.theme-day .home-activity,
+.theme-day .room-list-item,
+.theme-day .room-chat,
+.theme-day .profile-hero,
+.theme-day .wallet-hero,
+.theme-day .vip-panel,
+.theme-day .payment-balance,
+.theme-day .safety-hero,
+.theme-day .partner-hero,
+.theme-day .store-showcase,
+.theme-day .search-feature,
+.theme-day .flow-section,
+.theme-day .method-security,
+.theme-day .add-method-visual {
+  border-color: rgba(184, 77, 245, 0.18);
+  background:
+    linear-gradient(135deg, rgba(77, 136, 253, 0.055), rgba(184, 77, 245, 0.045) 56%, rgba(237, 116, 189, 0.06)),
+    #ffffff;
+  color: var(--ivory);
+  box-shadow: 0 12px 32px rgba(54, 70, 133, 0.08);
+}
+
+.theme-day .voice-card {
+  border-color: rgba(184, 77, 245, 0.2);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(184, 77, 245, 0.14), transparent 37%),
+    linear-gradient(145deg, rgba(77, 136, 253, 0.08), rgba(237, 116, 189, 0.08)),
+    #ffffff;
+  box-shadow: 0 18px 42px rgba(77, 136, 253, 0.12);
+}
+
+.theme-day .voice-card:after {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.7), transparent 28%, transparent 72%, rgba(237, 116, 189, 0.08));
+}
+
+.theme-day .voice-orbit,
+.theme-day .wave {
+  border-color: rgba(184, 77, 245, 0.18);
+}
+
+.theme-day .live-label,
+.theme-day .listener-count {
+  border-color: rgba(77, 136, 253, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  color: #4d88fd;
+  box-shadow: 0 6px 16px rgba(54, 70, 133, 0.07);
+}
+
+.theme-day .live-label i,
+.theme-day .pulse-dot,
+.theme-day .online-dot {
+  background: #36c4e4;
+}
+
+.theme-day .stage-mic,
+.theme-day .media-icon,
+.theme-day .quick-games button > span,
+.theme-day .activity-feed article > span,
+.theme-day .safety-actions button > span,
+.theme-day .inventory-grid > button > span {
+  background: linear-gradient(145deg, rgba(77, 136, 253, 0.13), rgba(237, 116, 189, 0.12));
+  color: #b84df5;
+}
+
+.theme-day .feature-screen,
+.theme-day .flow-screen,
+.theme-day .payment-screen,
+.theme-day .economy-screen,
+.theme-day .account-screen,
+.theme-day .room-detail,
+.theme-day .drama-player,
+.theme-day .ludo-game {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(184, 77, 245, 0.07), transparent 28%),
+    #ffffff;
+  color: var(--ivory);
+}
+
+.theme-day .feature-header {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.98) 72%, rgba(255, 255, 255, 0.86), transparent);
+}
+
+.theme-day .bottom-nav,
+.theme-day .voice-dock,
+.theme-day .room-dock {
+  border-color: rgba(77, 136, 253, 0.14);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 48px rgba(54, 70, 133, 0.16), inset 0 1px 0 #ffffff;
+  backdrop-filter: blur(24px);
+}
+
+.theme-day .bottom-nav button.active {
+  background: linear-gradient(180deg, rgba(184, 77, 245, 0.1), rgba(77, 136, 253, 0.04));
+  color: #b84df5;
+}
+
+.theme-day .language-menu,
+.theme-day .system-sheet,
+.theme-day .profile-peek {
+  border-color: rgba(77, 136, 253, 0.16);
+  background: rgba(255, 255, 255, 0.98);
+  color: var(--ivory);
+  box-shadow: 0 24px 60px rgba(54, 70, 133, 0.2);
+}
+
+.theme-day .language-menu button:hover,
+.theme-day .language-menu button.active {
+  background: linear-gradient(135deg, rgba(77, 136, 253, 0.1), rgba(237, 116, 189, 0.1));
+  color: var(--ivory);
+}
+
+.theme-day .profile-peek-backdrop,
+.theme-day .sheet-backdrop {
+  background: rgba(32, 39, 79, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+.theme-day .home-shortcuts .media-row:after {
+  background: linear-gradient(to top, rgba(20, 21, 58, 0.92), rgba(20, 21, 58, 0.05) 68%);
+}
+
+.theme-day .home-shortcuts .media-content strong,
+.theme-day .home-shortcuts .media-content small,
+.theme-day .home-shortcuts .row-action {
+  color: #ffffff;
+}
+
+.theme-day .join-button,
+.theme-day .flow-primary,
+.theme-day .sheet-primary,
+.theme-day .payment-primary,
+.theme-day .vip-upgrade,
+.theme-day .partner-submit,
+.theme-day .module-action,
+.theme-day .create-room-button,
+.theme-day .market-list-cta,
+.theme-day .mini-success button,
+.theme-day .flow-success button,
+.theme-day .profile-peek-actions .primary,
+.theme-day .profile-hero > button,
+.theme-day .wallet-hero button,
+.theme-day .vip-panel button,
+.theme-day .main-mic,
+.theme-day .ludo-roll,
+.theme-day .big-play {
+  border-color: rgba(255, 255, 255, 0.42) !important;
+  background: linear-gradient(115deg, #4d88fd 0%, #b84df5 55%, #ed74bd 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 30px rgba(119, 93, 222, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.32) !important;
+  text-shadow: none;
+}
+
+.theme-day input::placeholder,
+.theme-day textarea::placeholder {
+  color: #9aa0b5;
+}
+
+@media (min-width: 700px) {
+  .theme-day .app-frame {
+    border-color: rgba(77, 136, 253, 0.14);
+    box-shadow: 0 34px 90px rgba(54, 70, 133, 0.17);
+  }
+}

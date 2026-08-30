@@ -181,7 +181,25 @@ async function createWindow() {
       await clickAria('Language');await click('English');await clickAria('Language');await click('اردو');
       const urduReady=document.querySelector('.app-frame')?.dir==='rtl';
       await clickAria('Language');await click('English');
-      await click('Profile');await click('Platform systems');
+      document.querySelector('.friend-rail .avatar')?.click();await wait();
+      const profilePeekReady=Boolean(document.querySelector('.profile-peek'))&&document.querySelector('.profile-peek h2')?.textContent.includes('Hamza');
+      await click('Message');
+      const avatarMessageReady=Boolean(document.querySelector('.chat-screen'));
+      await clickAria('Back');await click('Home');await click('Profile');await click('Payments & billing');
+      const paymentReady=Boolean(document.querySelector('.payment-packs'));
+      await click('Manage');
+      const paymentMethodsReady=document.querySelectorAll('.managed-methods article').length;
+      await click('+ Add payment method');
+      const setInput=(element,value)=>{const setter=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;setter.call(element,value);element.dispatchEvent(new Event('input',{bubbles:true}))};
+      const methodInput=document.querySelector('.add-method-field input');setInput(methodInput,'03001234567');await wait();
+      await click('Save and use method');
+      const addedMethodReady=[...document.querySelectorAll('.managed-methods strong')].some(item=>item.textContent.includes('567'));
+      await clickAria('Back');await click('Review');await click('Continue securely');
+      const otpInput=document.querySelector('.otp-field input');setInput(otpInput,'123456');await wait();
+      await click('Pay PKR');await wait();await wait();await wait();await wait();await wait();
+      const paymentSuccessReady=Boolean(document.querySelector('.payment-state-icon.success'));
+      const rechargedBalance=document.querySelector('.payment-state-order strong')?.textContent;
+      await click('Return to Wallet');await clickAria('Back');await click('Platform systems');
       const hub=[...document.querySelectorAll('.system-hub-grid>button')].map(item=>item.textContent.trim());
       await click('Growth and activity');
       const modules=[...document.querySelectorAll('.system-module-list>button')].length;
@@ -236,9 +254,9 @@ async function createWindow() {
       const giftFlowReady=Boolean(document.querySelector('.gift-recipient-list'));
       await click('Maira');
       const overflow=document.documentElement.scrollWidth-document.documentElement.clientWidth;
-      return {chineseReady,urduReady,hubCount:hub.length,hub,modules,controls:controls.length,partial,complete,searchSections,profileReady,chatReady,inviteReady,roomReady,roomInviteReady,roomMenuReady,storeSearchReady,collectionReady,benefitsReady,upgradeReady,activityRulesReady,phaseReady,leaderboardReady,listingReady,blockedReady,appealsReady,wellbeingReady,partnerStepReady,giftFlowReady,overflow,dir:document.querySelector('.app-frame')?.dir};
+      return {chineseReady,urduReady,profilePeekReady,avatarMessageReady,paymentReady,paymentMethodsReady,addedMethodReady,paymentSuccessReady,rechargedBalance,hubCount:hub.length,hub,modules,controls:controls.length,partial,complete,searchSections,profileReady,chatReady,inviteReady,roomReady,roomInviteReady,roomMenuReady,storeSearchReady,collectionReady,benefitsReady,upgradeReady,activityRulesReady,phaseReady,leaderboardReady,listingReady,blockedReady,appealsReady,wellbeingReady,partnerStepReady,giftFlowReady,overflow,dir:document.querySelector('.app-frame')?.dir};
     })()`);
-    if (!result.chineseReady || !result.urduReady || result.hubCount !== 4 || result.modules !== 4 || result.controls < 8 || result.complete !== "Review complete" || result.searchSections < 4 || !result.profileReady || !result.chatReady || result.inviteReady !== "Invites sent" || !result.roomReady || !result.roomInviteReady || !result.roomMenuReady || !result.storeSearchReady || !result.collectionReady || !result.benefitsReady || result.upgradeReady !== "VIP 4 activated" || !result.activityRulesReady || !result.phaseReady || result.leaderboardReady < 6 || result.listingReady !== "Emerald Crescent" || result.blockedReady !== 3 || result.appealsReady !== 2 || !result.wellbeingReady || result.partnerStepReady !== "Review" || !result.giftFlowReady || result.overflow !== 0 || uiErrors.length) {
+    if (!result.chineseReady || !result.urduReady || !result.profilePeekReady || !result.avatarMessageReady || !result.paymentReady || result.paymentMethodsReady !== 3 || !result.addedMethodReady || !result.paymentSuccessReady || !result.rechargedBalance?.includes("1,570") || result.hubCount !== 4 || result.modules !== 4 || result.controls < 8 || result.complete !== "Review complete" || result.searchSections < 4 || !result.profileReady || !result.chatReady || result.inviteReady !== "Invites sent" || !result.roomReady || !result.roomInviteReady || !result.roomMenuReady || !result.storeSearchReady || !result.collectionReady || !result.benefitsReady || result.upgradeReady !== "VIP 4 activated" || !result.activityRulesReady || !result.phaseReady || result.leaderboardReady < 6 || result.listingReady !== "Emerald Crescent" || result.blockedReady !== 3 || result.appealsReady !== 2 || !result.wellbeingReady || result.partnerStepReady !== "Review" || !result.giftFlowReady || result.overflow !== 0 || uiErrors.length) {
       throw new Error(`UI smoke failed: ${JSON.stringify({ ...result, uiErrors })}`);
     }
     console.log(`[desktop-ui-smoke] ${JSON.stringify(result)}`);

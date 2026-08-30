@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render() {
+async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
-  return worker.fetch(new Request("http://localhost/", { headers: { accept: "text/html" } }), {
+  return worker.fetch(new Request(`http://localhost${pathname}`, { headers: { accept: "text/html" } }), {
     ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) },
   }, { waitUntil() {}, passThroughOnException() {} });
 }
@@ -26,12 +26,24 @@ test("server-renders the SADA home experience", async () => {
   assert.doesNotMatch(html, /Complete Interactive Prototype|Building your site/);
 });
 
+test("server-renders the independent SADA daytime entry", async () => {
+  const response = await render("/day");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /data-theme="day"/);
+  assert.match(html, /theme-day/);
+  assert.match(html, /Good evening, Ayaan/);
+});
+
 test("ships the visual assets and interactive client surface", async () => {
-  const [page, css, layout, localization] = await Promise.all([
+  const [page, css, layout, localization, buttonSystem, spacingSystem, typographySystem] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/localization.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/button-system.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/spacing-system.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/typography-system.css", import.meta.url), "utf8"),
   ]);
   assert.match(page, /^"use client";/);
   assert.match(page, /Join room/);
@@ -44,6 +56,9 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(page, /InboxScreen/);
   assert.match(page, /EconomyScreen/);
   assert.match(page, /ProfileScreen/);
+  assert.match(page, /PlayerQuickCard/);
+  assert.match(page, /sada:profile-peek/);
+  assert.match(page, /View full profile/);
   assert.match(page, /Choose language/);
   assert.match(page, /home-shortcuts/);
   assert.match(css, /home-activity>span>i b/);
@@ -61,6 +76,8 @@ test("ships the visual assets and interactive client surface", async () => {
   const prototypeFlows = await readFile(new URL("../app/prototype-flows.tsx", import.meta.url), "utf8");
   const payment = await readFile(new URL("../app/payment.tsx", import.meta.url), "utf8");
   const paymentCss = await readFile(new URL("../app/payment.css", import.meta.url), "utf8");
+  const operationFlows = await readFile(new URL("../app/operation-flows.tsx", import.meta.url), "utf8");
+  const operationFlowsCss = await readFile(new URL("../app/operation-flows.css", import.meta.url), "utf8");
   assert.match(systems, /Seven-day check-in/);
   assert.match(systems, /Effective online time/);
   assert.match(systems, /Only effective activity counts/);
@@ -76,6 +93,11 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(page, /Marketplace order pending/);
   assert.match(page, /InventoryCenterScreen/);
   assert.match(page, /Five guided moments unlock/);
+  assert.match(page, /Verify and continue/);
+  assert.match(page, /Build your profile/);
+  assert.match(page, /Choose permissions/);
+  assert.match(page, /Meet your first crew/);
+  assert.match(page, /Use demo code/);
   assert.match(page, /Game Ticket Pack/);
   assert.match(page, /New Member Pack/);
   assert.match(systems, /SafetyCenterScreen/);
@@ -116,6 +138,8 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(prototypeFlows, /GameHistoryScreen/);
   assert.match(prototypeFlows, /Confirm upgrade/);
   assert.match(page, /PaymentCenterScreen/);
+  assert.match(page, /OperationFlowCenterScreen/);
+  assert.match(page, /Complete operation flows/);
   assert.match(page, /diamondBalance/);
   assert.match(payment, /Easypaisa/);
   assert.match(payment, /JazzCash/);
@@ -125,16 +149,60 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(payment, /Payment not completed/);
   assert.match(payment, /Payment history/);
   assert.match(payment, /Refund request/);
+  assert.match(payment, /Payment methods/);
+  assert.match(payment, /Add payment method/);
+  assert.match(payment, /Payment method added and selected/);
   assert.match(paymentCss, /payment-protection/);
+  assert.match(operationFlows, /13 end-to-end product journeys/);
+  assert.match(operationFlows, /New user activation/);
+  assert.match(operationFlows, /Recharge and payment recovery/);
+  assert.match(operationFlows, /Game developer publishing/);
+  assert.match(operationFlows, /Drama studio publishing/);
+  assert.match(operationFlows, /Report, block and appeal/);
+  assert.match(operationFlows, /Customer support case/);
+  assert.match(operationFlows, /User action/);
+  assert.match(operationFlows, /SADA response/);
+  assert.match(operationFlows, /Exception branch/);
+  assert.match(operationFlowsCss, /flow-step-card/);
+  assert.match(operationFlowsCss, /flow-exception-sheet/);
   assert.match(localization, /"Payments & billing":"支付与账单"/);
   assert.match(localization, /"Payments & billing":"ادائیگی اور بلنگ"/);
+  assert.match(localization, /"Payment methods":"支付方式管理"/);
+  assert.match(localization, /"Payment methods":"ادائیگی کے طریقے"/);
+  assert.match(localization, /"Complete operation flows": "完整操作流程"/);
+  assert.match(localization, /"Complete operation flows": "مکمل عملی مراحل"/);
   assert.match(page, /Search store/);
   assert.match(page, /roomPanel/);
   assert.match(css, /--night-950:#030906/);
   assert.match(css, /prefers-reduced-motion:reduce/);
+  assert.match(page, /button-system\.css/);
+  assert.match(page, /spacing-system\.css/);
+  assert.match(page, /typography-system\.css/);
+  assert.match(page, /day-theme\.css/);
+  assert.match(page, /onboarding\.css/);
+  const dayTheme = await readFile(new URL("../app/day-theme.css", import.meta.url), "utf8");
+  const dayEntry = await readFile(new URL("../app/day/page.tsx", import.meta.url), "utf8");
+  assert.match(dayTheme, /#4d88fd/i);
+  assert.match(dayTheme, /#b84df5/i);
+  assert.match(dayTheme, /#ed74bd/i);
+  assert.match(dayEntry, /theme="day"/);
+  assert.match(buttonSystem, /--action-gold-900:#261908/);
+  assert.match(buttonSystem, /\.payment-primary/);
+  assert.match(buttonSystem, /\.profile-peek-actions \.primary/);
+  assert.match(buttonSystem, /\.app-frame button:focus-visible/);
+  assert.match(spacingSystem, /--space-6:\s*24px/);
+  assert.match(spacingSystem, /--page-gutter:\s*20px/);
+  assert.match(spacingSystem, /\.profile-peek-stats/);
+  assert.match(typographySystem, /Source Han Sans SADA/);
+  assert.match(typographySystem, /--weight-display:\s*800/);
+  assert.match(typographySystem, /--weight-section:\s*700/);
+  assert.match(typographySystem, /--weight-component:\s*650/);
   assert.match(layout, /title:\s*"SADA · Live, play, belong"/);
   for (const asset of ["sada-avatars.png", "sada-ludo.png", "sada-drama.png"]) {
     await access(new URL(`../public/media/${asset}`, import.meta.url));
   }
   await access(new URL("../public/media/frames/multan-voice.png", import.meta.url));
+  await access(new URL("../public/fonts/source-han-sans-cn-vf.woff2", import.meta.url));
+  await access(new URL("../public/fonts/LICENSE-source-han-sans.txt", import.meta.url));
+  await access(new URL("../app/onboarding.css", import.meta.url));
 });

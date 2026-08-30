@@ -1,0 +1,120 @@
+/* SADA spatial rhythm: a 4px grid with a 6px micro-step for compact UI. */
+:root {
+  --space-0: 0;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --page-gutter: 20px;
+  --control-gap: 8px;
+  --card-padding: 16px;
+  --section-gap: 24px;
+  --text-gap: 4px;
+}
+
+/* Type rhythm */
+body { line-height: 1.5; letter-spacing: 0.005em; }
+h1,h2,h3,p,small,strong,button,input,textarea,select { text-rendering: optimizeLegibility; }
+h1 { margin: var(--space-1) 0 var(--space-5); line-height: 1.1; letter-spacing: -0.025em; }
+h2,h3 { line-height: 1.25; letter-spacing: -0.01em; }
+p { line-height: 1.55; }
+small { line-height: 1.4; letter-spacing: 0.015em; }
+strong,b { line-height: 1.3; }
+button,input,textarea,select { line-height: 1.2; letter-spacing: 0.01em; }
+.wordmark { line-height: 1; letter-spacing: 0.32em; }
+.live-label,.profile-peek-identity>span,.partner-hero>small,.payment-section-title,.module-status { letter-spacing: 0.06em; }
+
+/* App shell and persistent chrome */
+.app-header { height: 76px; padding: 16px var(--page-gutter) 12px; }
+.header-actions { gap: var(--space-2); }
+.balance { gap: var(--space-1-5); padding-inline: var(--space-2); }
+.app-scroll,.feature-screen,.flow-screen,.payment-screen,.economy-screen { padding-inline: var(--page-gutter); }
+.app-scroll { padding-top: 84px; padding-bottom: 132px; }
+.feature-header { margin: 0 calc(var(--page-gutter) * -1) var(--space-5); padding: var(--space-6) var(--page-gutter) var(--space-3); }
+.feature-header>div,.chat-head,.game-top,.payment-screen>header,.room-detail-head { gap: var(--space-3); }
+.bottom-nav { padding: var(--space-2) var(--space-1-5); }
+.bottom-nav button { gap: var(--space-1); }
+.room-dock { gap: var(--space-3); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4); }
+.room-dock>span { column-gap: var(--space-2); row-gap: 2px; }
+
+/* Home screen */
+.friends-section { margin-bottom: var(--space-6); }
+.friend-rail { gap: var(--space-3); margin-top: var(--space-3); padding: 2px 1px var(--space-1); }
+.home-activity { margin: calc(var(--space-2) * -1) 0 var(--space-6); padding: var(--space-3) var(--space-4); }
+.home-activity>span { padding-inline-end: var(--space-4); }
+.home-activity>span>i { margin-top: var(--space-1-5); }
+.section-heading { min-height: 36px; margin: 0 0 var(--space-3); }
+.section-heading.compact,.home-shortcuts .section-heading.compact { margin: var(--space-6) 0 var(--space-2); }
+.section-heading button { gap: var(--space-1); padding: 0 var(--space-1) 0 var(--space-3); }
+.voice-card { padding: var(--space-4); }
+.voice-card-top,.room-copy,.media-content { row-gap: var(--space-1); }
+.room-copy p { margin: var(--space-1) 0 var(--space-3); line-height: 1.45; }
+.join-button { gap: var(--space-2); }
+.home-shortcuts { gap: var(--space-3); margin-top: 0; }
+.home-shortcuts .media-content { padding: var(--space-4); }
+.home-shortcuts .media-icon { margin-bottom: var(--space-2); }
+.media-content { padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4); }
+.media-content small { margin-top: var(--space-1); line-height: 1.4; }
+.playing-friends { margin-top: var(--space-2); }
+
+/* Reusable section, list and card rhythm */
+.flow-section { margin-top: var(--space-2); }
+.filter-row,.activity-tabs,.payment-filter,.method-type-tabs,.vip-level-rail,.store-head-actions,.drama-actions { gap: var(--space-2); }
+.flow-list,.room-list,.conversation-list,.people-list,.request-list,.benefit-list,.order-history,.order-list,.payment-orders,.managed-methods,.mission-list,.case-list,.control-list,.settings-list,.phase-task-list,.system-module-list,.detail-rule-list,.gift-recipient-list { gap: var(--space-2); }
+.flow-list>button,.search-feature,.room-list-item,.conversation-list>button,.people-list>button,.benefit-list article,.managed-methods>article,.mission-list>article,.case-list>article,.phase-task-list>article,.system-module-list>button,.gift-recipient-list>button { gap: var(--space-3); padding: var(--space-3); }
+.market-grid,.gift-grid,.collection-grid,.store-product-grid,.inventory-grid,.moment-grid,.quick-games,.partner-cards,.risk-limits,.benefit-grid,.system-hub-grid { gap: var(--space-3); }
+.market-grid>button,.gift-grid button,.collection-grid button,.store-product-grid button,.inventory-grid>button,.moment-grid button,.quick-games>button,.partner-cards article,.risk-limits article,.benefit-grid>article,.system-hub-grid>button { padding: var(--space-4); }
+.history-summary,.inventory-summary,.payment-summary,.score-strip { gap: var(--space-2); margin-bottom: var(--space-4); }
+.history-summary span,.inventory-summary>div,.payment-summary>span,.score-strip>span { gap: var(--space-1); padding: var(--space-3) var(--space-2); }
+.leaderboard,.settlement-list,.report-options,.refund-reasons,.payment-methods,.recharge-grid,.option-grid,.season-phases { gap: var(--space-2); }
+.leaderboard article,.settlement-list article,.order-history article,.activity-feed article,.request-list article,.requirement-list>div { gap: var(--space-3); padding-block: var(--space-3); }
+
+/* Text stacks */
+.flow-list strong+small,.search-feature strong+small,.shared-room strong+em,.select-list strong+small,.order-history strong+small,.benefit-list strong+p,.inventory-grid strong+small,.activity-feed strong+small,.control-list strong+small,.requirement-list strong+small,.leaderboard strong+small,.settlement-list strong+small,.store-product-grid strong+small,.payment-orders strong+small,.managed-method-main strong+small { margin-top: var(--space-1); }
+.profile-peek-identity h2,.public-profile h2,.room-preview h2,.flow-success h2,.mini-success h2 { line-height: 1.15; letter-spacing: -0.02em; }
+
+/* Forms and grouped controls */
+.room-form,.account-actions,.add-method-field,.verify-copy,.receipt-details,.review-details { gap: var(--space-4); }
+.room-form label,.add-method-field label,.account-form label { gap: var(--space-2); }
+.room-form legend { margin-bottom: var(--space-2); }
+.room-form input,.room-form textarea,.room-form select,.account-form input,.add-method-field input,.system-sheet textarea { padding-inline: var(--space-4); line-height: 1.4; }
+.room-form textarea,.system-sheet textarea { padding-block: var(--space-3); }
+.sheet-actions,.verify-actions,.profile-cta,.profile-peek-actions,.safety-actions { gap: var(--space-2); margin-top: var(--space-4); }
+.flow-primary,.vip-upgrade,.partner-submit,.module-action,.payment-primary { margin-top: var(--space-5); }
+
+/* Profile, modal and sheet rhythm */
+.profile-peek-backdrop { padding: var(--space-4); }
+.profile-peek,.system-sheet,.product-sheet,.gift-sheet,.activity-sheet,.room-action-sheet,.safety-detail-sheet { padding: var(--space-6) var(--space-5) var(--space-5); }
+.profile-peek-identity>span { gap: var(--space-1-5); margin-top: var(--space-2); }
+.profile-peek-identity h2 { margin: var(--space-2) 0 var(--space-1); }
+.profile-peek-identity>small { margin-top: var(--space-2); }
+.profile-peek-bio { margin: var(--space-4) auto; line-height: 1.55; }
+.profile-peek-stats { padding: var(--space-3) 0; }
+.profile-peek-stats span { gap: var(--space-1); }
+.profile-peek-mutual { gap: var(--space-3); margin: var(--space-3) 0; }
+.profile-peek-full { gap: var(--space-2); margin-top: var(--space-2); padding: var(--space-2); }
+.public-profile p { margin: var(--space-1) 0 var(--space-4); }
+.public-profile>div:not(.profile-cta) { gap: var(--space-5); }
+.profile-hero,.wallet-hero,.vip-panel,.partner-hero,.safety-hero,.campaign-hero,.system-hub-hero,.currency-boundary { padding: var(--space-5); }
+.profile-actions,.wallet-breakdown { gap: var(--space-2); }
+
+/* Payment flow */
+.payment-screen { padding-bottom: var(--space-8); }
+.payment-balance,.payment-packs,.payment-methods,.payment-protection,.payment-consent,.payment-note,.mini-payment-orders { margin-top: var(--space-5); }
+.payment-section-title { margin-bottom: var(--space-3); }
+.payment-packs,.payment-methods { margin-top: 0; }
+.payment-packs { gap: var(--space-2); }
+.payment-packs button,.payment-methods button,.refund-reasons button { padding: var(--space-3); }
+.payment-text h2,.payment-text p,.payment-state h2,.payment-state p { margin-top: var(--space-2); margin-bottom: 0; }
+.payment-secondary { margin-top: var(--space-2); }
+
+@media (max-width: 360px) {
+  :root { --page-gutter: 16px; --card-padding: 14px; }
+  .friend-rail { gap: var(--space-2); }
+  .profile-peek,.system-sheet,.product-sheet,.gift-sheet,.activity-sheet,.room-action-sheet,.safety-detail-sheet { padding-inline: var(--space-4); }
+}
