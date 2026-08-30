@@ -1,0 +1,74 @@
+/* Real media layer for the drama playback test. */
+.drama-stage {
+  overflow: hidden;
+  background: url('/media/sada-drama.png') 44% center / cover;
+}
+
+.drama-stage::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(5, 8, 25, 0.9), transparent 56%);
+}
+
+.drama-video {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #11163f;
+}
+
+.drama-stage-top,
+.big-play {
+  z-index: 3;
+}
+
+.big-play {
+  color: #ffffff;
+}
+
+.big-play.is-playing {
+  opacity: 0.32;
+}
+
+.drama-overlay {
+  z-index: 2;
+  color: #ffffff;
+}
+
+.drama-overlay small {
+  color: #ed74bd;
+}
+
+.drama-overlay h1 {
+  color: #ffffff;
+}
+
+.drama-overlay p,
+.drama-overlay > span {
+  color: #eef0ff;
+}
+
+.video-progress {
+  width: 100%;
+  height: 8px;
+  display: block;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.24);
+  cursor: pointer;
+}
+
+.video-progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #4d88fd, #b84df5, #ed74bd);
+  transition: width 0.12s linear;
+}

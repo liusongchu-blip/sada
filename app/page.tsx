@@ -1,12 +1,14 @@
 "use client";
+/* eslint-disable jsx-a11y/no-autofocus */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ActivityCenterScreen, InventoryCenterScreen, MarketplaceScreen, PartnerCenterScreen, SafetyCenterScreen } from "./systems";
 import { SystemHubScreen, SystemModuleScreen, SystemSectionId, SystemSectionScreen } from "./mindmap-systems";
 import { CollectionScreen, CreateRoomScreen, GameHistoryScreen, InviteFriendsScreen, ProfileSettingsScreen, SearchScreen, UserProfileScreen, VipBenefitsScreen } from "./prototype-flows";
 import { initialPaymentOrders, PaymentCenterScreen, PaymentOrder } from "./payment";
 import { FlowTarget, OperationFlowCenterScreen } from "./operation-flows";
+import { LatestPrototypeFlowsScreen } from "./latest-prototype-flows";
 import { useAppLocalization } from "./localization";
 import "./polish.css";
 import "./polish-fixes.css";
@@ -15,6 +17,8 @@ import "./spacing-system.css";
 import "./typography-system.css";
 import "./day-theme.css";
 import "./onboarding.css";
+import "./video-player.css";
+import "./home-banner.css";
 
 type IconName = "search" | "diamond" | "personAdd" | "mic" | "users" | "game" | "play" | "bookmark" | "home" | "discover" | "message" | "profile" | "chevron" | "close";
 
@@ -40,6 +44,19 @@ function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
 }
 
 const friends = [["Hamza", 0], ["Maira", 1], ["Zayan", 2], ["Noor", 3], ["Adeel", 4], ["Sana", 5]] as const;
+
+const homeBanners = [
+  { src: "/media/sada-welcome-banner-v2.png", alt: "SADA میں خوش آمدید — پاکستانی شاہانہ استقبالیہ گروپ", label: "SADA welcome", target: null },
+  { src: "/media/sada-banner-ludo.png", alt: "آج رات لڈو کھیلیں — دوستوں کے ساتھ لڈو", label: "Play Ludo tonight", target: "games" },
+  { src: "/media/sada-banner-video.png", alt: "آج کی مقبول ویڈیو — پاکستانی مقبول ڈراما", label: "Watch today’s popular video", target: "drama" },
+] as const;
+
+const formatVideoTime = (seconds: number) => {
+  if (!Number.isFinite(seconds)) return "00:00";
+  const minutes = Math.floor(seconds / 60);
+  const remainder = Math.floor(seconds % 60);
+  return `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+};
 
 type Locale = "en" | "zh" | "ur";
 
@@ -179,9 +196,12 @@ function DiscoverScreen({ onBack, onOpenDrama, onSearch, onOpenProfile }: { onBa
 }
 
 function DramaPlayerScreen({ onBack, notify }: { onBack:()=>void; notify:(message:string)=>void }) {
-  const [playing,setPlaying]=useState(false);const [saved,setSaved]=useState(false);const [progress,setProgress]=useState(38);const [unlocked,setUnlocked]=useState([1,2,3]);
-  const openEpisode=(episode:number)=>{if(!unlocked.includes(episode)){setUnlocked(items=>[...items,episode]);notify(`Episode ${episode} unlocked · ◆ 25`)}else{setPlaying(true);setProgress(0);notify(`Episode ${episode} playing`)}};
-  return <div className="drama-player"><div className="drama-stage"><div className="drama-stage-top"><button className="screen-back" onClick={onBack} aria-label="Back">‹</button><button className="icon-button" onClick={()=>notify("Episode shared to your crew")} aria-label="Share episode">↗</button></div><button className="big-play" onClick={()=>{setPlaying(value=>!value);setProgress(value=>Math.min(100,value+7));}} aria-label={playing?"Pause episode":"Play episode"}><Icon name="play" size={32}/></button><div className="drama-overlay"><small>Episode 04 · Urdu / English subtitles</small><h1>Dil Se Door</h1><p>Some truths only arrive after sunset.</p><div className="video-progress"><i style={{width:`${progress}%`}}/></div><span>{playing?"Playing":"Paused"} · 08:12</span></div></div><div className="drama-info"><div><h2>Secrets after sunset</h2><p>Rida returns to Karachi with a letter that changes everything between her and Amaan.</p><div className="drama-actions"><button onClick={()=>notify("Discussion room joined")}>Join discussion room</button><button onClick={()=>notify("Following Dil Se Door")}>Follow series</button></div></div><button className={saved?"saved":""} onClick={()=>{setSaved(value=>!value);notify(saved?"Removed from your list":"Saved to your list");}}><Icon name="bookmark"/><span>{saved?"Saved":"Save"}</span></button></div><div className="episode-list"><h2>Episodes</h2>{["A quiet arrival","The unopened letter","Between two homes","Secrets after sunset","The return"].map((title,index)=>{const episode=index+1;const open=unlocked.includes(episode);return <button key={title} onClick={()=>openEpisode(episode)}><span>{String(episode).padStart(2,"0")}</span><strong>{title}</strong><small>{open?`${7+index} min`:"◆ 25"}</small><b className={open?"episode-open":"episode-lock"}>{open?"▶":"Locked"}</b></button>})}</div></div>;
+  const videoRef=useRef<HTMLVideoElement>(null);const [playing,setPlaying]=useState(false);const [saved,setSaved]=useState(false);const [progress,setProgress]=useState(0);const [currentTime,setCurrentTime]=useState(0);const [duration,setDuration]=useState(0);const [unlocked,setUnlocked]=useState([1,2,3]);
+  const togglePlayback=async()=>{const video=videoRef.current;if(!video)return;if(video.paused){try{await video.play()}catch{notify("Video playback could not start")}}else video.pause()};
+  const restartPlayback=async()=>{const video=videoRef.current;if(!video)return;video.currentTime=0;try{await video.play()}catch{notify("Video playback could not start")}};
+  const openEpisode=(episode:number)=>{if(!unlocked.includes(episode)){setUnlocked(items=>[...items,episode]);notify(`Episode ${episode} unlocked · ◆ 25`)}else{void restartPlayback();notify(`Episode ${episode} playing`)}};
+  const seekVideo=(event:React.MouseEvent<HTMLButtonElement>)=>{const video=videoRef.current;if(!video||!duration)return;const rect=event.currentTarget.getBoundingClientRect();const ratio=Math.min(1,Math.max(0,(event.clientX-rect.left)/rect.width));video.currentTime=duration*ratio};
+  return <div className="drama-player"><div className="drama-stage"><video ref={videoRef} className="drama-video" src="/media/sample-flower.mp4" poster="/media/sada-drama.png" preload="metadata" playsInline onLoadedMetadata={event=>setDuration(event.currentTarget.duration)} onTimeUpdate={event=>{const video=event.currentTarget;setCurrentTime(video.currentTime);setProgress(video.duration?video.currentTime/video.duration*100:0)}} onPlay={()=>setPlaying(true)} onPause={()=>setPlaying(false)} onEnded={()=>setPlaying(false)}><track kind="captions" src="/media/sample-flower.vtt" srcLang="en" label="English" default/>Your browser does not support HTML video.</video><div className="drama-stage-top"><button className="screen-back" onClick={onBack} aria-label="Back">‹</button><button className="icon-button" onClick={()=>notify("Episode shared to your crew")} aria-label="Share episode">↗</button></div><button className={`big-play${playing?" is-playing":""}`} onClick={()=>void togglePlayback()} aria-label={playing?"Pause episode":"Play episode"}><Icon name="play" size={32}/></button><div className="drama-overlay"><small>Test video · MDN public sample</small><h1>Dil Se Door</h1><p>Public flower time-lapse inserted for playback testing.</p><button className="video-progress" onClick={seekVideo} aria-label="Seek video"><i style={{width:`${progress}%`}}/></button><span>{playing?"Playing":"Paused"} · {formatVideoTime(currentTime)} / {formatVideoTime(duration)}</span></div></div><div className="drama-info"><div><h2>Secrets after sunset</h2><p>This public sample clip lets the team verify playback, pause, seeking, progress and packaged desktop media.</p><div className="drama-actions"><button onClick={()=>notify("Discussion room joined")}>Join discussion room</button><button onClick={()=>notify("Following Dil Se Door")}>Follow series</button></div></div><button className={saved?"saved":""} onClick={()=>{setSaved(value=>!value);notify(saved?"Removed from your list":"Saved to your list");}}><Icon name="bookmark"/><span>{saved?"Saved":"Save"}</span></button></div><div className="episode-list"><h2>Episodes</h2>{["A quiet arrival","The unopened letter","Between two homes","Secrets after sunset","The return"].map((title,index)=>{const episode=index+1;const open=unlocked.includes(episode);return <button key={title} onClick={()=>openEpisode(episode)}><span>{String(episode).padStart(2,"0")}</span><strong>{title}</strong><small>{open?`${7+index} min`:"◆ 25"}</small><b className={open?"episode-open":"episode-lock"}>{open?"▶":"Locked"}</b></button>})}</div></div>;
 }
 
 function GameLobbyScreen({ onBack, onPlay, onHistory }: { onBack:()=>void; onPlay:()=>void; onHistory:()=>void }) {
@@ -210,7 +230,7 @@ function ChatScreen({ name, avatarIndex, onBack, notify }: { name:string; avatar
 
 function ProfileScreen({ balance, onBack, onOpen, onPayments, onActivity, onInventory, onMarketplace, onSafety, onPartner, onSystems, onFlows, onAccount, onSettings }: { balance:number; onBack:()=>void; onOpen:(screen:"store"|"vip"|"wallet")=>void; onPayments:()=>void; onActivity:()=>void; onInventory:()=>void; onMarketplace:()=>void; onSafety:()=>void; onPartner:()=>void; onSystems:()=>void; onFlows:()=>void; onAccount:()=>void; onSettings:()=>void }) {
   const [notifications,setNotifications]=useState(true);
-  return <div className="feature-screen profile-screen"><div className="feature-header"><button className="screen-back" onClick={onBack} aria-label="Back">‹</button><div><small>Your SADA</small><h1>Profile</h1></div><button className="icon-button" onClick={onSettings} aria-label="Profile settings">⚙</button></div><div className="profile-hero"><Avatar name="Ayaan" index={2} size="large"/><h2>Ayaan Khan</h2><p>@ayaan · Karachi</p><span><b>128</b> Friends <b>1.8K</b> Followers <b>VIP 3</b></span><button onClick={onSettings}>Edit profile</button></div><div className="profile-actions"><button onClick={onFlows}><span>↳</span><strong>Complete operation flows</strong><small>13 end-to-end product journeys</small><Icon name="chevron"/></button><button onClick={onSystems}><span>▦</span><strong>Platform systems</strong><small>All mind-map modules</small><Icon name="chevron"/></button><button onClick={onActivity}><span>✓</span><strong>Activity center</strong><small>3 rewards are ready</small><Icon name="chevron"/></button><button onClick={onInventory}><span>◌</span><strong>My collection</strong><small>Items, tags and equipment</small><Icon name="chevron"/></button><button onClick={()=>onOpen("wallet")}><span>◆</span><strong>Wallet</strong><small>{balance.toLocaleString()} Diamonds</small><Icon name="chevron"/></button><button onClick={onPayments}><span>PKR</span><strong>Payments & billing</strong><small>Recharge, receipts and refunds</small><Icon name="chevron"/></button><button onClick={()=>onOpen("store")}><span>◇</span><strong>Store</strong><small>Gifts & styles</small><Icon name="chevron"/></button><button onClick={onMarketplace}><span>◈</span><strong>Marketplace</strong><small>Trade eligible collectibles</small><Icon name="chevron"/></button><button onClick={()=>onOpen("vip")}><span>V</span><strong>VIP membership</strong><small>Level 3 · 620 XP</small><Icon name="chevron"/></button></div><div className="settings-list"><button onClick={()=>setNotifications(value=>!value)}><span>Notifications</span><b className={notifications?"toggle on":"toggle"}><i/></b></button><button onClick={onSafety}><span>Safety & privacy</span><small>Protected ›</small></button><button onClick={onPartner}><span>Partner center</span><small>Grade A ›</small></button><button onClick={onAccount}><span>Preview onboarding</span><Icon name="chevron" size={18}/></button><button onClick={onSettings}><span>Language & preferences</span><small>English ›</small></button></div></div>;
+  return <div className="feature-screen profile-screen"><div className="feature-header"><button className="screen-back" onClick={onBack} aria-label="Back">‹</button><div><small>Your SADA</small><h1>Profile</h1></div><button className="icon-button" onClick={onSettings} aria-label="Profile settings">⚙</button></div><div className="profile-hero"><Avatar name="Ayaan" index={2} size="large"/><h2>Ayaan Khan</h2><p>@ayaan · Karachi</p><span><b>128</b> Friends <b>1.8K</b> Followers <b>VIP 3</b></span><button onClick={onSettings}>Edit profile</button></div><div className="profile-actions"><button onClick={onFlows}><span>↳</span><strong>Complete operation flows</strong><small>16 latest prototype journeys</small><Icon name="chevron"/></button><button onClick={onSystems}><span>▦</span><strong>Platform systems</strong><small>All mind-map modules</small><Icon name="chevron"/></button><button onClick={onActivity}><span>✓</span><strong>Activity center</strong><small>3 rewards are ready</small><Icon name="chevron"/></button><button onClick={onInventory}><span>◌</span><strong>My collection</strong><small>Items, tags and equipment</small><Icon name="chevron"/></button><button onClick={()=>onOpen("wallet")}><span>◆</span><strong>Wallet</strong><small>{balance.toLocaleString()} Diamonds</small><Icon name="chevron"/></button><button onClick={onPayments}><span>PKR</span><strong>Payments & billing</strong><small>Recharge, receipts and refunds</small><Icon name="chevron"/></button><button onClick={()=>onOpen("store")}><span>◇</span><strong>Store</strong><small>Gifts & styles</small><Icon name="chevron"/></button><button onClick={onMarketplace}><span>◈</span><strong>Marketplace</strong><small>Trade eligible collectibles</small><Icon name="chevron"/></button><button onClick={()=>onOpen("vip")}><span>V</span><strong>VIP membership</strong><small>Level 3 · 620 XP</small><Icon name="chevron"/></button></div><div className="settings-list"><button onClick={()=>setNotifications(value=>!value)}><span>Notifications</span><b className={notifications?"toggle on":"toggle"}><i/></b></button><button onClick={onSafety}><span>Safety & privacy</span><small>Protected ›</small></button><button onClick={onPartner}><span>Partner center</span><small>Grade A ›</small></button><button onClick={onAccount}><span>Preview onboarding</span><Icon name="chevron" size={18}/></button><button onClick={onSettings}><span>Language & preferences</span><small>English ›</small></button></div></div>;
 }
 
 function EconomyScreen({ mode, balance, onBalanceChange, onBack, onPayment, onSearch, onCollection, onBenefits, notify }: { mode:"store"|"vip"|"wallet"; balance:number; onBalanceChange:(balance:number)=>void; onBack:()=>void; onPayment:()=>void; onSearch:()=>void; onCollection:()=>void; onBenefits:(category?:string)=>void; notify:(message:string)=>void }) {
@@ -266,7 +286,7 @@ const navItems: { label: NavKey; icon: IconName }[] = [{ label: "Home", icon: "h
 
 export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
   const [accountOpen, setAccountOpen] = useState(false);
-  const [appScreen, setAppScreen] = useState<"home"|"rooms"|"room"|"discover"|"drama"|"games"|"ludo"|"inbox"|"chat"|"profile"|"economy"|"payment"|"activity"|"inventory"|"marketplace"|"safety"|"partner"|"systemhub"|"systemsection"|"systemmodule"|"operationflows"|"search"|"userprofile"|"invite"|"createroom"|"collection"|"vipbenefits"|"profilesettings"|"gamehistory">("home");
+  const [appScreen, setAppScreen] = useState<"home"|"rooms"|"room"|"discover"|"drama"|"games"|"ludo"|"inbox"|"chat"|"profile"|"economy"|"payment"|"activity"|"inventory"|"marketplace"|"safety"|"partner"|"systemhub"|"systemsection"|"systemmodule"|"operationflows"|"latestflows"|"search"|"userprofile"|"invite"|"createroom"|"collection"|"vipbenefits"|"profilesettings"|"gamehistory">("home");
   const [systemSection,setSystemSection]=useState<SystemSectionId>("growth");
   const [systemModule,setSystemModule]=useState("new-user");
   const [economyMode,setEconomyMode]=useState<"store"|"vip"|"wallet">("store");
@@ -281,6 +301,7 @@ export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
   const [locale, setLocale] = useState<Locale>("en");
   const [languageOpen, setLanguageOpen] = useState(false);
   const [profilePeek, setProfilePeek] = useState<{name:string;index:number} | null>(null);
+  const [bannerIndex, setBannerIndex] = useState(0);
   const copy = homeCopy[locale];
   useAppLocalization(locale);
   useEffect(() => {
@@ -290,6 +311,11 @@ export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
     window.addEventListener("keydown", closeOnEscape);
     return () => { window.removeEventListener("sada:profile-peek", open); window.removeEventListener("keydown", closeOnEscape); };
   }, []);
+  useEffect(() => {
+    if (theme !== "day" || appScreen !== "home" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const interval = window.setInterval(() => setBannerIndex(index => (index + 1) % homeBanners.length), 5000);
+    return () => window.clearInterval(interval);
+  }, [appScreen, bannerIndex, theme]);
   const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(null), 2200); };
   const joinRoom = () => { setJoined(true); notify("You joined Karachi Night Chai"); };
   const launchFlowTarget = (target: FlowTarget) => {
@@ -297,12 +323,22 @@ export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
     if (target === "store") { setEconomyMode("store"); setAppScreen("economy"); return; }
     setAppScreen(target);
   };
+  const activeBanner = homeBanners[bannerIndex];
+  const openActiveBanner = () => {
+    if (activeBanner.target === "games") { setActiveNav("Play"); setAppScreen("games"); }
+    if (activeBanner.target === "drama") { setActiveNav("Discover"); setAppScreen("drama"); }
+  };
   return <main className={`site-shell theme-${theme}`} data-theme={theme}><div className="app-frame" lang={locale === "ur" ? "ur-PK" : locale === "zh" ? "zh-CN" : "en-PK"} dir={locale === "ur" ? "rtl" : "ltr"}>
     {accountOpen ? <AccountFlow onComplete={() => { setAccountOpen(false); notify("Welcome to SADA · 80 Diamonds claimed"); }}/> : <>
     {appScreen === "home" ? <>
-    <header className="app-header"><button className="wordmark" aria-label="Open account setup" onClick={() => setAccountOpen(true)}>SADA</button><div className="header-actions"><button className="icon-button" onClick={()=>setAppScreen("search")} aria-label="Search SADA"><Icon name="search" size={19}/></button><button className="balance" onClick={() => {setEconomyMode("wallet");setAppScreen("economy")}}><Icon name="diamond" size={19}/>{diamondBalance.toLocaleString()}</button><button className="icon-button language-toggle" aria-label="Language" aria-expanded={languageOpen} onClick={() => setLanguageOpen(value => !value)}>{copy.code}</button></div></header>
+    <header className="app-header"><button className={`wordmark${theme === "day" ? " wordmark-image" : ""}`} aria-label="Open account setup" onClick={() => setAccountOpen(true)}>{theme === "day" ? <Image src="/media/sada-logo-bright.png" width={1983} height={793} sizes="116px" priority alt=""/> : "SADA"}</button><div className="header-actions"><button className="icon-button" onClick={()=>setAppScreen("search")} aria-label="Search SADA"><Icon name="search" size={19}/></button><button className="balance" onClick={() => {setEconomyMode("wallet");setAppScreen("economy")}}><Icon name="diamond" size={19}/>{diamondBalance.toLocaleString()}</button><button className="icon-button language-toggle" aria-label="Language" aria-expanded={languageOpen} onClick={() => setLanguageOpen(value => !value)}>{copy.code}</button></div></header>
     {languageOpen ? <div className="language-menu" role="menu" aria-label="Choose language">{(["en","zh","ur"] as const).map(item => <button key={item} role="menuitem" className={locale === item ? "active" : ""} onClick={() => { setLocale(item); setLanguageOpen(false); notify(homeCopy[item].selectedToast); }}><span>{homeCopy[item].code}</span><strong>{homeCopy[item].language}</strong>{locale === item ? <b>✓</b> : null}</button>)}</div> : null}
-    <div className="app-scroll" id="top"><h1>{copy.greeting}</h1>
+    <div className="app-scroll" id="top">
+      {theme === "day" ? <section className="home-welcome-banner" aria-roledescription="carousel" aria-label="SADA featured banners">
+        {activeBanner.target ? <button key={activeBanner.src} className="home-banner-slide home-banner-link" aria-label={activeBanner.label} onClick={openActiveBanner}><Image src={activeBanner.src} width={2172} height={724} sizes="(max-width: 699px) calc(100vw - 40px), 390px" priority alt={activeBanner.alt}/></button> : <div key={activeBanner.src} className="home-banner-slide"><Image src={activeBanner.src} width={2172} height={724} sizes="(max-width: 699px) calc(100vw - 40px), 390px" priority alt={activeBanner.alt}/></div>}
+        <div className="home-banner-dots" aria-label="Choose featured banner">{homeBanners.map((banner,index) => <button key={banner.src} className={index === bannerIndex ? "active" : ""} aria-label={`Show banner ${index + 1}: ${banner.label}`} aria-current={index === bannerIndex ? "true" : undefined} onClick={() => setBannerIndex(index)}/>)}</div>
+      </section> : null}
+      <h1>{copy.greeting}</h1>
       <section className="friends-section" aria-labelledby="friends-title"><h2 id="friends-title">{copy.friends}</h2><div className="friend-rail">{friends.map(([name,index]) => <button key={name} aria-label={`Open ${name}'s profile`} onClick={() => {setSelectedPerson({name,index});setAppScreen("userprofile")}}><Avatar name={name} index={index}/></button>)}<button className="add-friend" aria-label="Invite a friend" onClick={() => setAppScreen("invite")}><Icon name="personAdd" size={24}/></button></div></section>
       <button className="home-activity" onClick={() => setAppScreen("activity")}><span><small>{copy.activityMeta}</small><strong>{copy.activityTitle}</strong><i aria-hidden="true"><b/></i></span><b>60%</b></button>
       <div className="section-heading"><h2>{copy.liveNow}</h2><button aria-label="See all live rooms" onClick={() => setAppScreen("rooms")}><Icon name="chevron" size={18}/></button></div><VoiceRoom copy={copy} onJoin={() => { joinRoom(); setAppScreen("room"); }}/>
@@ -310,9 +346,9 @@ export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
     </div></>
     : appScreen === "rooms" ? <VoiceRoomsScreen onBack={()=>setAppScreen("home")} onOpenRoom={()=>setAppScreen("room")} onSearch={()=>setAppScreen("search")} onCreate={()=>setAppScreen("createroom")}/>
     : appScreen === "room" ? <RoomDetailScreen onBack={()=>setAppScreen("rooms")} onJoin={setJoined} notify={notify}/>
-    : appScreen === "discover" ? <DiscoverScreen onBack={()=>setAppScreen("home")} onOpenDrama={()=>setAppScreen("drama")} onSearch={()=>setAppScreen("search")} onOpenProfile={(name,index)=>{setSelectedPerson({name,index});setAppScreen("userprofile")}}/>
+    : appScreen === "discover" ? <DiscoverScreen onBack={()=>{setActiveNav("Home");setAppScreen("home")}} onOpenDrama={()=>setAppScreen("drama")} onSearch={()=>setAppScreen("search")} onOpenProfile={(name,index)=>{setSelectedPerson({name,index});setAppScreen("userprofile")}}/>
     : appScreen === "drama" ? <DramaPlayerScreen onBack={()=>setAppScreen("discover")} notify={notify}/>
-    : appScreen === "games" ? <GameLobbyScreen onBack={()=>setAppScreen("home")} onPlay={()=>setAppScreen("ludo")} onHistory={()=>setAppScreen("gamehistory")}/>
+    : appScreen === "games" ? <GameLobbyScreen onBack={()=>{setActiveNav("Home");setAppScreen("home")}} onPlay={()=>setAppScreen("ludo")} onHistory={()=>setAppScreen("gamehistory")}/>
     : appScreen === "ludo" ? <LudoGameScreen onBack={()=>setAppScreen("games")} notify={notify}/>
     : appScreen === "inbox" ? <InboxScreen onBack={()=>setAppScreen("home")} onNewMessage={()=>setAppScreen("search")} onChat={(name,index)=>{setChatPerson({name,index});setAppScreen("chat")}}/>
     : appScreen === "chat" ? <ChatScreen name={chatPerson.name} avatarIndex={chatPerson.index} onBack={()=>setAppScreen("inbox")} notify={notify}/>
@@ -334,9 +370,10 @@ export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
     : appScreen === "systemsection" ? <SystemSectionScreen sectionId={systemSection} onBack={()=>setAppScreen("systemhub")} onOpen={moduleId=>{setSystemModule(moduleId);setAppScreen("systemmodule")}}/>
     : appScreen === "systemmodule" ? <SystemModuleScreen sectionId={systemSection} moduleId={systemModule} onBack={()=>setAppScreen("systemsection")} notify={notify}/>
     : appScreen === "operationflows" ? <OperationFlowCenterScreen onBack={()=>setAppScreen("profile")} onLaunch={launchFlowTarget} notify={notify}/>
-    : appScreen === "profile" ? <ProfileScreen balance={diamondBalance} onBack={()=>setAppScreen("home")} onOpen={mode=>{setEconomyMode(mode);setAppScreen("economy")}} onPayments={()=>setAppScreen("payment")} onActivity={()=>setAppScreen("activity")} onInventory={()=>setAppScreen("inventory")} onMarketplace={()=>setAppScreen("marketplace")} onSafety={()=>setAppScreen("safety")} onPartner={()=>setAppScreen("partner")} onSystems={()=>setAppScreen("systemhub")} onFlows={()=>setAppScreen("operationflows")} onAccount={()=>setAccountOpen(true)} onSettings={()=>setAppScreen("profilesettings")}/>
+    : appScreen === "latestflows" ? <LatestPrototypeFlowsScreen onBack={()=>setAppScreen("profile")} notify={notify}/>
+    : appScreen === "profile" ? <ProfileScreen balance={diamondBalance} onBack={()=>setAppScreen("home")} onOpen={mode=>{setEconomyMode(mode);setAppScreen("economy")}} onPayments={()=>setAppScreen("payment")} onActivity={()=>setAppScreen("activity")} onInventory={()=>setAppScreen("inventory")} onMarketplace={()=>setAppScreen("marketplace")} onSafety={()=>setAppScreen("safety")} onPartner={()=>setAppScreen("partner")} onSystems={()=>setAppScreen("systemhub")} onFlows={()=>setAppScreen("latestflows")} onAccount={()=>setAccountOpen(true)} onSettings={()=>setAppScreen("profilesettings")}/>
     : <EconomyScreen mode={economyMode} balance={diamondBalance} onBalanceChange={setDiamondBalance} onBack={()=>setAppScreen("profile")} onPayment={()=>setAppScreen("payment")} onSearch={()=>setAppScreen("search")} onCollection={()=>setAppScreen("collection")} onBenefits={category=>{setVipCategory(category||"All");setAppScreen("vipbenefits")}} notify={notify}/>} 
-    {!(["room","drama","ludo","chat","economy","payment","systemhub","systemsection","systemmodule","operationflows","search","userprofile","invite","createroom","collection","vipbenefits","profilesettings","gamehistory"] as string[]).includes(appScreen) && <nav className="bottom-nav" aria-label="Primary navigation">{navItems.map(item => <button key={item.label} className={activeNav === item.label ? "active" : ""} onClick={() => { setActiveNav(item.label); if(item.label === "Home") setAppScreen("home"); else if(item.label === "Discover") setAppScreen("discover"); else if(item.label === "Play") setAppScreen("games"); else if(item.label === "Inbox") setAppScreen("inbox"); else if(item.label === "Profile") setAppScreen("profile"); }}><span className="nav-icon"><Icon name={item.icon} size={23}/>{item.label === "Inbox" && <i className="unread-dot"/>}</span><span>{copy.nav[item.label]}</span></button>)}</nav>}
+    {!(["room","drama","ludo","chat","economy","payment","systemhub","systemsection","systemmodule","operationflows","latestflows","search","userprofile","invite","createroom","collection","vipbenefits","profilesettings","gamehistory"] as string[]).includes(appScreen) && <nav className="bottom-nav" aria-label="Primary navigation">{navItems.map(item => <button key={item.label} className={activeNav === item.label ? "active" : ""} onClick={() => { setActiveNav(item.label); if(item.label === "Home") setAppScreen("home"); else if(item.label === "Discover") setAppScreen("discover"); else if(item.label === "Play") setAppScreen("games"); else if(item.label === "Inbox") setAppScreen("inbox"); else if(item.label === "Profile") setAppScreen("profile"); }}><span className="nav-icon"><Icon name={item.icon} size={23}/>{item.label === "Inbox" && <i className="unread-dot"/>}</span><span>{copy.nav[item.label]}</span></button>)}</nav>}
     {joined && <div className="room-dock"><span><i className="pulse-dot"/><b>Karachi Night Chai</b><small>Connected · listening</small></span><button aria-label="Leave room" onClick={() => { setJoined(false); notify("You left the room"); }}><Icon name="close" size={19}/></button></div>}
     </>}
     {profilePeek ? <PlayerQuickCard player={profilePeek} locale={locale} onClose={()=>setProfilePeek(null)} onMessage={()=>{setChatPerson(profilePeek);setProfilePeek(null);setAppScreen("chat")}} onView={()=>{setSelectedPerson(profilePeek);setProfilePeek(null);setAppScreen("userprofile")}}/> : null}

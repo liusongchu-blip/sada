@@ -40,3 +40,4 @@ yarn-error.log*
 /work/
 /.electron-builder-cache/
 /release/
+/release-day/

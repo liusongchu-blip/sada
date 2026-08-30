@@ -198,6 +198,18 @@ Object.assign(ur, {
   "Self-service, ticket, resolution and feedback": "خود مدد، ٹکٹ، حل اور فیڈبیک",
 });
 
+Object.assign(zh, {
+  "Latest prototype systems":"最新原型系统","MockingBot · complete secondary and tertiary paths":"墨刀 · 完整二级与三级操作路径","prototype pages mapped":"个原型页面已映射","new operational flows":"条新增操作流程","flows self-checked":"条流程已自测","Activity":"活动","Safety":"安全","Latest MockingBot prototype":"最新墨刀原型","Open 33-page system operation map":"打开 33 页系统操作图","16 new secondary and tertiary flows are interactive":"16 条新增二三级流程可交互",
+  "Seven-day check-in":"七日签到","Online rewards":"在线奖励","Task center":"任务中心","Wallet & ledger":"钱包与账单","Store item detail":"商城商品详情","Create listing":"创建上架","Marketplace orders":"市场订单","VIP benefit matrix":"VIP 权益矩阵","Report & appeal":"举报与申诉","Partner onboarding":"合作方入驻","Game partner console":"游戏合作方后台","Drama partner console":"短剧合作方后台","Review center":"审核中心","Partner analytics":"合作方数据分析","Settlement center":"结算中心","Tips & dialogs":"提示与对话框",
+  "Expected outcome":"预期结果","Current operation":"当前操作","Next operation":"下一步操作","System response":"系统反馈","Continue":"继续","Confirm operation":"确认操作","Final confirmation":"最终确认","Operation complete":"操作完成","Back to systems":"返回系统列表","Run again":"再次运行","Required before final submission":"最终提交前必填","Ready for validation":"可以校验","VIP levels":"VIP 等级"
+});
+
+Object.assign(ur, {
+  "Latest prototype systems":"تازہ ترین پروٹوٹائپ سسٹمز","MockingBot · complete secondary and tertiary paths":"MockingBot · مکمل ثانوی اور تیسرے درجے کے راستے","prototype pages mapped":"پروٹوٹائپ صفحات منسلک","new operational flows":"نئے عملی فلو","flows self-checked":"فلو خود جانچے گئے","Activity":"سرگرمی","Safety":"حفاظت","Latest MockingBot prototype":"تازہ ترین MockingBot پروٹوٹائپ","Open 33-page system operation map":"33 صفحات کا سسٹم نقشہ کھولیں","16 new secondary and tertiary flows are interactive":"16 نئے ثانوی اور تیسرے درجے کے فلو انٹرایکٹو ہیں",
+  "Seven-day check-in":"سات روزہ چیک اِن","Online rewards":"آن لائن انعامات","Task center":"ٹاسک سینٹر","Wallet & ledger":"والیٹ اور لیجر","Store item detail":"اسٹور آئٹم تفصیل","Create listing":"لسٹنگ بنائیں","Marketplace orders":"مارکیٹ آرڈرز","VIP benefit matrix":"VIP فوائد میٹرکس","Report & appeal":"رپورٹ اور اپیل","Partner onboarding":"پارٹنر آن بورڈنگ","Game partner console":"گیم پارٹنر کنسول","Drama partner console":"ڈرامہ پارٹنر کنسول","Review center":"ریویو سینٹر","Partner analytics":"پارٹنر تجزیات","Settlement center":"سیٹلمنٹ سینٹر","Tips & dialogs":"اطلاعات اور ڈائیلاگ",
+  "Expected outcome":"متوقع نتیجہ","Current operation":"موجودہ عمل","Next operation":"اگلا عمل","System response":"سسٹم جواب","Continue":"جاری رکھیں","Confirm operation":"عمل کی تصدیق","Final confirmation":"آخری تصدیق","Operation complete":"عمل مکمل","Back to systems":"سسٹمز پر واپس","Run again":"دوبارہ چلائیں","Required before final submission":"آخری جمع سے پہلے ضروری","Ready for validation":"جانچ کے لیے تیار","VIP levels":"VIP درجات"
+});
+
 const originals = new WeakMap<Node, string>();
 const originalAttributes = new WeakMap<Element, Map<string, string>>();
 const attributes = ["aria-label", "placeholder", "title"];

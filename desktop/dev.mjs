@@ -9,7 +9,9 @@ const electronBin = path.join(
   ".bin",
   process.platform === "win32" ? "electron.cmd" : "electron",
 );
-const url = "http://127.0.0.1:3010";
+const isDay = process.env.SADA_DESKTOP_THEME === "day";
+const url = `http://127.0.0.1:3010${isDay ? "/day" : ""}`;
+const desktopEntry = isDay ? "desktop/main-day.mjs" : ".";
 
 const web = spawn("npm", ["run", "dev", "--", "--hostname", "127.0.0.1", "--port", "3010"], {
   cwd: projectRoot,
@@ -47,7 +49,7 @@ if (!(await waitForServer())) {
   process.exit(1);
 }
 
-const desktop = spawn(electronBin, ["."], {
+const desktop = spawn(electronBin, [desktopEntry], {
   cwd: projectRoot,
   env: { ...process.env, SADA_DESKTOP_URL: url },
   stdio: "inherit",

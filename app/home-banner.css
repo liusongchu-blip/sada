@@ -1,0 +1,101 @@
+.home-welcome-banner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  overflow: hidden;
+  margin: 2px 0 20px;
+  border: 1px solid rgba(184, 77, 245, 0.2);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow:
+    0 15px 34px rgba(77, 136, 253, 0.13),
+    0 5px 14px rgba(184, 77, 245, 0.09);
+}
+
+.home-banner-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: #fff;
+  animation: homeBannerIn 480ms cubic-bezier(.2,.75,.2,1) both;
+}
+
+.home-banner-link {
+  cursor: pointer;
+}
+
+.home-banner-slide img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 700ms cubic-bezier(.2,.75,.2,1);
+}
+
+.home-banner-link:hover img,
+.home-banner-link:focus-visible img {
+  transform: scale(1.018);
+}
+
+.home-banner-link:focus-visible {
+  outline: 3px solid rgba(184, 77, 245, 0.62);
+  outline-offset: -4px;
+}
+
+.home-banner-dots {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 4px 14px rgba(54, 70, 133, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.home-banner-dots button {
+  width: 6px;
+  height: 6px;
+  min-height: 0;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: rgba(54, 70, 133, 0.26);
+  transition: width 220ms ease, background 220ms ease;
+}
+
+.home-banner-dots button.active {
+  width: 18px;
+  background: linear-gradient(90deg, #4d88fd, #b84df5 55%, #ed74bd);
+}
+
+@keyframes homeBannerIn {
+  from { opacity: 0; transform: translateX(12px) scale(.99); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-banner-slide,
+  .home-banner-slide img,
+  .home-banner-dots button {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .home-welcome-banner {
+    margin-bottom: 18px;
+    border-radius: 17px;
+  }
+}

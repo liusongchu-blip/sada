@@ -1,0 +1,25 @@
+{
+  "appId": "com.sada.social.day",
+  "productName": "SADA Day",
+  "asar": false,
+  "npmRebuild": false,
+  "electronDist": "node_modules/electron/dist",
+  "directories": {
+    "output": "release-day"
+  },
+  "files": [
+    "desktop/**/*",
+    "dist/standalone/**/*",
+    "package.json"
+  ],
+  "extraMetadata": {
+    "main": "desktop/main-day.mjs",
+    "productName": "SADA Day",
+    "version": "0.1.1"
+  },
+  "mac": {
+    "category": "public.app-category.social-networking",
+    "icon": "desktop/assets/icon-day.png",
+    "target": ["dir"]
+  }
+}

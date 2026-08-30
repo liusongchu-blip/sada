@@ -157,6 +157,26 @@
 }
 .wordmark{border:1px solid transparent;border-radius:10px;padding:7px 8px;background:rgba(81,58,24,.06)}
 .wordmark:hover{border-color:rgba(214,185,111,.2);background:rgba(81,58,24,.16)}
+.theme-night .wordmark{
+  width:126px;
+  height:46px;
+  border-color:rgba(214,185,111,.5);
+  border-radius:12px;
+  padding:0;
+  overflow:hidden;
+  color:transparent;
+  background:
+    url("/media/sada-logo-bright.png") center/116px auto no-repeat,
+    linear-gradient(135deg,rgba(255,248,232,.97),rgba(229,204,152,.94));
+  box-shadow:0 8px 24px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.8);
+}
+.theme-night .wordmark:hover{
+  border-color:rgba(232,199,119,.82);
+  background:
+    url("/media/sada-logo-bright.png") center/118px auto no-repeat,
+    linear-gradient(135deg,#fff9ec,#e8d09e);
+  box-shadow:0 10px 28px rgba(0,0,0,.3),0 0 0 3px rgba(214,185,111,.08);
+}
 .friend-rail>button:not(.add-friend){border:1px solid rgba(214,185,111,.18)!important;background:radial-gradient(circle,rgba(81,58,24,.16),rgba(8,27,20,.76))!important;box-shadow:0 6px 16px rgba(0,0,0,.16)}
 .friend-rail>button:not(.add-friend):hover{border-color:rgba(214,185,111,.48)!important;box-shadow:0 8px 20px rgba(0,0,0,.25),0 0 0 3px rgba(214,185,111,.06)}
 .bottom-nav button{border:1px solid rgba(214,185,111,.06)!important;background:linear-gradient(180deg,rgba(81,58,24,.04),rgba(5,21,15,.16))!important}

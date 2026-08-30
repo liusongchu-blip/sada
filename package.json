@@ -15,10 +15,14 @@
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "desktop:dev": "node desktop/dev.mjs",
     "desktop:smoke": "SADA_DESKTOP_SMOKE=1 node desktop/dev.mjs",
+    "desktop:day:dev": "node desktop/dev-day.mjs",
+    "desktop:day:smoke": "SADA_DESKTOP_SMOKE=1 node desktop/dev-day.mjs",
     "desktop:pack": "npm run build && ELECTRON_BUILDER_CACHE=.electron-builder-cache electron-builder --mac dir",
     "desktop:dmg": "npm run build && ELECTRON_BUILDER_CACHE=.electron-builder-cache electron-builder --mac dmg",
+    "desktop:day:pack": "npm run build && ELECTRON_BUILDER_CACHE=.electron-builder-cache electron-builder --config electron-builder.day.json --mac dir",
+    "desktop:day:dmg": "npm run build && ELECTRON_BUILDER_CACHE=.electron-builder-cache electron-builder --config electron-builder.day.json --mac dmg",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern release --ignore-pattern .electron-builder-cache",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern release --ignore-pattern release-day --ignore-pattern .electron-builder-cache",
     "db:generate": "drizzle-kit generate"
   },
   "build": {

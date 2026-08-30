@@ -7,7 +7,10 @@ import { fileURLToPath } from "node:url";
 
 const desktopDir = path.dirname(fileURLToPath(import.meta.url));
 const appRoot = path.resolve(desktopDir, "..");
-const productionPort = 3786;
+const desktopTheme = process.env.SADA_DESKTOP_THEME === "day" ? "day" : "night";
+const productName = desktopTheme === "day" ? "SADA Day" : "SADA";
+const startPath = desktopTheme === "day" ? "/day" : "/";
+const productionPort = desktopTheme === "day" ? 3787 : 3786;
 const trustedOrigins = new Set([
   `http://127.0.0.1:${productionPort}`,
   "http://127.0.0.1:3010",
@@ -19,7 +22,7 @@ let serverProcess;
 function installApplicationMenu() {
   const template = [
     {
-      label: "SADA",
+      label: productName,
       submenu: [
         { role: "about" },
         { type: "separator" },
@@ -118,15 +121,19 @@ function isTrusted(url) {
 }
 
 async function createWindow() {
-  const iconPath = path.join(desktopDir, "assets", "icon.png");
+  const iconPath = path.join(desktopDir, "assets", desktopTheme === "day" ? "icon-day.png" : "icon.png");
   const icon = nativeImage.createFromPath(iconPath);
+  app.setName(productName);
+  if (process.platform === "darwin" && desktopTheme === "day" && app.dock) {
+    app.dock.setIcon(icon);
+  }
   mainWindow = new BrowserWindow({
     width: 1180,
     height: 820,
     minWidth: 900,
     minHeight: 680,
-    backgroundColor: "#030906",
-    title: "SADA",
+    backgroundColor: desktopTheme === "day" ? "#ffffff" : "#030906",
+    title: productName,
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     trafficLightPosition: { x: 18, y: 18 },
     icon,
@@ -156,14 +163,20 @@ async function createWindow() {
     });
   }
   if (process.env.SADA_DESKTOP_SMOKE === "1") {
-    mainWindow.webContents.once("did-finish-load", () => {
-      console.log("[desktop-smoke] SADA window loaded successfully");
+    mainWindow.webContents.once("did-finish-load", async () => {
+      await new Promise((resolve) => setTimeout(resolve, 450));
+      if (process.env.SADA_DESKTOP_CAPTURE_PATH) {
+        const screenshot = await mainWindow.webContents.capturePage();
+        await writeFile(process.env.SADA_DESKTOP_CAPTURE_PATH, screenshot.toPNG());
+      }
+      console.log(`[desktop-smoke] ${productName} loaded successfully at ${mainWindow?.webContents.getURL()}`);
       setTimeout(() => app.quit(), 300);
     });
   }
 
   const baseUrl = await resolveAppUrl();
   const url = new URL(baseUrl);
+  if (desktopTheme === "day" && url.pathname === "/") url.pathname = startPath;
   url.searchParams.set("desktop", "1");
   await mainWindow.loadURL(url.toString());
   if (process.env.SADA_DESKTOP_UI_SMOKE === "1") {
