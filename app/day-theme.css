@@ -14,8 +14,8 @@
   --cyan: #36c4e4;
   --gold: #b84df5;
   --ivory: #11163f;
-  --secondary: #626985;
-  --tertiary: #9298ad;
+  --secondary: #505875;
+  --tertiary: #69718f;
   --action-gold-950: #315fc4;
   --action-gold-900: #4d88fd;
   --action-gold-800: #6b76fb;
@@ -133,13 +133,90 @@
 }
 
 .theme-day .icon-button:not(:disabled):hover,
+.theme-day .screen-back:not(:disabled):hover,
+.theme-day .sheet-close:not(:disabled):hover,
+.theme-day .profile-peek-close:not(:disabled):hover,
+.theme-day .payment-head-action:not(:disabled):hover,
+.theme-day .store-head-actions button:not(:disabled):hover,
+.theme-day .room-dock button:not(:disabled):hover,
+.theme-day .managed-method-remove:not(:disabled):hover,
 .theme-day .language-toggle:not(:disabled):hover,
 .theme-day .icon-button:focus-visible,
+.theme-day .screen-back:focus-visible,
+.theme-day .sheet-close:focus-visible,
+.theme-day .profile-peek-close:focus-visible,
+.theme-day .payment-head-action:focus-visible,
+.theme-day .store-head-actions button:focus-visible,
+.theme-day .room-dock button:focus-visible,
+.theme-day .managed-method-remove:focus-visible,
+.theme-day .screen-back:not(:disabled):active,
+.theme-day .sheet-close:not(:disabled):active,
+.theme-day .profile-peek-close:not(:disabled):active,
+.theme-day .payment-head-action:not(:disabled):active,
+.theme-day .store-head-actions button:not(:disabled):active,
+.theme-day .room-dock button:not(:disabled):active,
+.theme-day .managed-method-remove:not(:disabled):active,
 .theme-day .language-toggle:focus-visible {
   border-color: rgba(184, 77, 245, 0.28) !important;
   background: linear-gradient(145deg, #ffffff 8%, #f4f1ff 54%, #eef6ff 100%) !important;
   color: #b84df5 !important;
   box-shadow: 0 8px 20px rgba(77, 136, 253, 0.12), inset 0 1px 0 #ffffff !important;
+}
+
+/* Day screens only request the bright campaign artwork. Night posters remain
+ * available to the night route, but are never used by the light experience. */
+.theme-day .media-game .media-image {
+  background-image: url('/media/sada-banner-ludo.png');
+}
+
+.theme-day .media-drama .media-image {
+  background-image: url('/media/sada-banner-video.png');
+  background-position: center;
+}
+
+.theme-day .game-feature {
+  border-color: rgba(77, 136, 253, 0.18);
+  background:
+    linear-gradient(to top, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.08) 68%),
+    url('/media/sada-banner-ludo.png') center / cover;
+  color: #11163f;
+  box-shadow: 0 14px 34px rgba(54, 70, 133, 0.12);
+}
+
+.theme-day .game-feature small { color: #315fc4; }
+.theme-day .game-feature p { color: #505875; }
+
+.theme-day .game-feature > span,
+.theme-day .featured-drama > span {
+  width: max-content;
+  max-width: calc(100% - 28px);
+  border: 1px solid rgba(77, 136, 253, 0.14);
+  border-radius: 16px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 9px 24px rgba(54, 70, 133, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.theme-day .featured-drama {
+  border-color: rgba(184, 77, 245, 0.18);
+  background:
+    linear-gradient(to top, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.06) 66%),
+    url('/media/sada-banner-video.png') center / cover;
+  color: #11163f;
+  box-shadow: 0 14px 34px rgba(54, 70, 133, 0.12);
+}
+
+.theme-day .featured-drama small { color: #8d45d2; }
+.theme-day .featured-drama em { color: #505875; }
+.theme-day .drama-thumb { background-image: url('/media/sada-banner-video.png'); }
+.theme-day .alt-thumb { background-image: url('/media/sada-banner-ludo.png'); filter: none; }
+
+/* Small supporting copy needs extra contrast and weight on a white canvas. */
+.theme-day .app-frame small,
+.theme-day .bottom-nav span,
+.theme-day .profile-peek-hint {
+  font-weight: 500 !important;
 }
 
 .theme-day .balance {
@@ -498,7 +575,7 @@
 .theme-day .app-frame .bottom-nav button {
   border-color: transparent !important;
   background: transparent !important;
-  color: #7b8096 !important;
+  color: #616982 !important;
   box-shadow: none !important;
 }
 

@@ -4,6 +4,10 @@
   background: url('/media/sada-drama.png') 44% center / cover;
 }
 
+.theme-day .drama-stage {
+  background: url('/media/sada-banner-video.png') center / cover;
+}
+
 .drama-stage::after {
   content: "";
   position: absolute;

@@ -142,6 +142,10 @@
 .room-dock button,
 .managed-method-remove,
 .language-toggle{
+  display:grid;
+  place-items:center;
+  padding:0;
+  line-height:1;
   border:1px solid rgba(214,185,111,.28)!important;
   background:linear-gradient(145deg,rgba(55,42,19,.7),rgba(11,31,23,.94))!important;
   color:var(--action-gold-300)!important;
