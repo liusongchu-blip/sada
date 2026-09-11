@@ -95,7 +95,10 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(page, /Build your profile/);
   assert.match(page, /Choose permissions/);
   assert.match(page, /Meet your first crew/);
-  assert.match(page, /Use demo code/);
+  assert.match(page, /Use local development code/);
+  assert.match(page, /sadaApi\.auth\.requestOtp/);
+  assert.match(page, /sadaApi\.auth\.verifyOtp/);
+  assert.match(page, /sadaApi\.auth\.updateMe/);
   assert.match(page, /Game Ticket Pack/);
   assert.match(page, /New Member Pack/);
   assert.match(systems, /SafetyCenterScreen/);
@@ -154,6 +157,10 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(payment, /Payment methods/);
   assert.match(payment, /Add payment method/);
   assert.match(payment, /Payment method added and selected/);
+  assert.match(payment, /sadaApi\.payments\.createIntent/);
+  assert.match(payment, /sadaApi\.payments\.confirm/);
+  assert.match(payment, /sadaApi\.payments\.refund/);
+  assert.match(payment, /signed settlement webhook/i);
   assert.match(paymentCss, /payment-protection/);
   assert.match(operationFlows, /13 end-to-end product journeys/);
   assert.match(operationFlows, /New user activation/);

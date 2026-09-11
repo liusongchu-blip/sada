@@ -1,14 +1,15 @@
 import { env } from "cloudflare:workers";
 
-export type SadaEnv = {
-  DB: D1Database;
+export type SadaEnv = Omit<Cloudflare.Env, "SADA_ENV" | "SADA_TRUST_OAI_HEADERS"> & {
   SADA_ENV?: string;
+  SADA_TRUST_OAI_HEADERS?: string;
   SADA_ADMIN_EMAILS?: string;
   SADA_ADMIN_TOKEN?: string;
   SMS_PROVIDER_URL?: string;
   SMS_PROVIDER_TOKEN?: string;
   PAYMENT_PROVIDER_URL?: string;
   PAYMENT_PROVIDER_TOKEN?: string;
+  PAYMENT_WEBHOOK_SECRET?: string;
 };
 
 export type AdminIdentity = {
@@ -36,13 +37,13 @@ export class ApiError extends Error {
 }
 
 export function database(): D1Database {
-  const db = (env as unknown as SadaEnv).DB;
+  const db = (env as SadaEnv).DB;
   if (!db) throw new ApiError(503, "DATABASE_UNAVAILABLE", "Database binding is unavailable");
   return db;
 }
 
 export function runtimeEnv(): SadaEnv {
-  return env as unknown as SadaEnv;
+  return env as SadaEnv;
 }
 
 export function ok(data: unknown, init: ResponseInit = {}): Response {
@@ -80,8 +81,12 @@ function responseHeaders(input?: HeadersInit): Headers {
 export async function body(request: Request): Promise<Record<string, unknown>> {
   const type = request.headers.get("content-type") ?? "";
   if (!type.includes("application/json")) throw new ApiError(415, "JSON_REQUIRED", "Expected application/json");
+  const declaredLength = Number(request.headers.get("content-length") ?? "0");
+  if (declaredLength > 65_536) throw new ApiError(413, "BODY_TOO_LARGE", "Request body exceeds 64 KiB");
+  const raw = await request.text();
+  if (raw.length > 65_536) throw new ApiError(413, "BODY_TOO_LARGE", "Request body exceeds 64 KiB");
   try {
-    const value: unknown = await request.json();
+    const value: unknown = JSON.parse(raw);
     if (!value || Array.isArray(value) || typeof value !== "object") throw new Error("object required");
     return value as Record<string, unknown>;
   } catch {
@@ -138,7 +143,10 @@ export function randomToken(bytes = 32): string {
 
 export async function requireUser(request: Request): Promise<UserRow> {
   const db = database();
-  const externalSubject = request.headers.get("oai-authenticated-user-id");
+  const config = runtimeEnv();
+  const externalSubject = config.SADA_TRUST_OAI_HEADERS === "true"
+    ? request.headers.get("oai-authenticated-user-id")
+    : null;
   if (externalSubject) {
     const email = request.headers.get("oai-authenticated-user-email");
     const encodedName = request.headers.get("oai-authenticated-user-full-name");
@@ -165,9 +173,10 @@ export async function requireUser(request: Request): Promise<UserRow> {
   return user;
 }
 
-export function requireAdmin(request: Request): AdminIdentity {
+export async function requireAdmin(request: Request): Promise<AdminIdentity> {
   const config = runtimeEnv();
-  const email = request.headers.get("oai-authenticated-user-email")?.trim().toLowerCase();
+  const trustOaiHeaders = config.SADA_TRUST_OAI_HEADERS === "true";
+  const email = trustOaiHeaders ? request.headers.get("oai-authenticated-user-email")?.trim().toLowerCase() : undefined;
   const encodedName = request.headers.get("oai-authenticated-user-full-name");
   const allowedEmails = new Set(
     (config.SADA_ADMIN_EMAILS ?? "")
@@ -181,13 +190,36 @@ export function requireAdmin(request: Request): AdminIdentity {
   if (email && allowedEmails.has(email)) {
     return { email, name: decodeName(encodedName) ?? email.split("@")[0] };
   }
-  if (config.SADA_ADMIN_TOKEN && token === config.SADA_ADMIN_TOKEN) {
+  if (config.SADA_ADMIN_TOKEN && token && await secureEqual(token, config.SADA_ADMIN_TOKEN)) {
     return { email: "service-admin@sada.local", name: "SADA Admin" };
   }
   if (config.SADA_ENV !== "production" && !config.SADA_ADMIN_EMAILS && !config.SADA_ADMIN_TOKEN) {
     return { email: "local-admin@sada.local", name: "Local Admin" };
   }
   throw new ApiError(403, "ADMIN_FORBIDDEN", "Administrator access is required");
+}
+
+export function assertSameOriginForCookieMutation(request: Request): void {
+  if (["GET", "HEAD", "OPTIONS"].includes(request.method)) return;
+  if (request.headers.get("authorization")?.startsWith("Bearer ")) return;
+  if (!cookieValue(request, "sada_session")) return;
+  const origin = request.headers.get("origin");
+  if (!origin || origin !== new URL(request.url).origin) {
+    throw new ApiError(403, "CSRF_REJECTED", "Cross-origin cookie request rejected");
+  }
+}
+
+export async function secureEqual(left: string, right: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const [leftHash, rightHash] = await Promise.all([
+    crypto.subtle.digest("SHA-256", encoder.encode(left)),
+    crypto.subtle.digest("SHA-256", encoder.encode(right)),
+  ]);
+  const leftBytes = new Uint8Array(leftHash);
+  const rightBytes = new Uint8Array(rightHash);
+  let difference = 0;
+  for (let index = 0; index < leftBytes.length; index += 1) difference |= leftBytes[index] ^ rightBytes[index];
+  return difference === 0;
 }
 
 export function sessionToken(request: Request): string | null {

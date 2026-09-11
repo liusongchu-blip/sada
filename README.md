@@ -111,6 +111,8 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 - `npm run lint`: run static checks
 - `npm test`: build and run rendered UI and backend contract tests
 - `npm run check`: run the complete CI verification
+- `npm run release:check`: run CI checks and a Cloudflare deployment dry run
+- `npm run cf:types`: regenerate checked-in Worker binding/runtime types
 - `npm run db:generate`: generate Drizzle migrations after schema changes
 - `npm run db:migrate:local`: apply D1 migrations locally
 - `npm run db:seed:local`: add representative local data

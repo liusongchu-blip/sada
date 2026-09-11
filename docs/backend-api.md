@@ -30,7 +30,7 @@ variables described below.
 | Growth | `GET /activities`, `POST /activities/check-in`, `POST /activities/:id/claim` |
 | Economy | `GET /catalog`, `GET /inventory`, `POST /inventory/:id/equip`, `POST /store/purchases`, `POST /vip/upgrade` |
 | Marketplace | `GET/POST /market/listings`, `POST /market/listings/:id/buy`, `GET /market/orders` |
-| Payments | `GET/POST /payments/methods`, `DELETE /payments/methods/:id`, `POST /payments/intents`, `POST /payments/intents/:id/confirm`, `GET /payments/receipts`, `POST /payments/receipts/:id/refunds` |
+| Payments | `GET/POST /payments/methods`, `DELETE /payments/methods/:id`, `POST /payments/intents`, `POST /payments/intents/:id/confirm`, `POST /payments/webhooks/provider`, `GET /payments/receipts`, `POST /payments/receipts/:id/refunds` |
 | Safety | `GET/PATCH /safety/preferences`, `POST /reports` |
 | Admin | `GET /admin/overview`, `GET /admin/users`, `PATCH /admin/users/:id`, `PATCH /admin/rooms/:id`, `PATCH /admin/reports/:id` |
 
@@ -42,8 +42,12 @@ references; raw card/account numbers are rejected.
 ## Production environment
 
 - `SADA_ENV=production`
+- `SADA_TRUST_OAI_HEADERS=true` only on OpenAI Sites/Dispatch where those headers
+  are platform-injected and stripped from public client requests; keep it `false`
+  for direct Workers deployments
 - `SMS_PROVIDER_URL` and optionally `SMS_PROVIDER_TOKEN`
 - `PAYMENT_PROVIDER_URL` and optionally `PAYMENT_PROVIDER_TOKEN`
+- `PAYMENT_WEBHOOK_SECRET` for signed payment settlement events
 - `SADA_ADMIN_EMAILS` as a comma-separated administrator allowlist and/or `SADA_ADMIN_TOKEN` for service access
 - D1 binding name: `DB`
 
@@ -51,6 +55,14 @@ The browser admin is available at `/admin`. Local development permits a local
 administrator only when no admin email allowlist or token is configured. Production
 always requires an allowlisted workspace identity or the service token.
 
-Production payment success should ultimately be confirmed by a signed provider
-webhook. The current provider adapter is deliberately generic so Easypaisa,
-JazzCash, or a card processor can be selected without changing the client contract.
+Production payment confirmation moves the intent to `processing`; it does not add
+Diamonds. The provider must send `POST /api/v1/payments/webhooks/provider` with a
+JSON body containing `paymentId`, `providerReference`, and `status` (`succeeded`
+or `failed`). Sign the exact body using HMAC-SHA256 over
+`<unix_timestamp>.<raw_body>` and send `x-sada-signature: t=<timestamp>,v1=<hex>`.
+Events older than five minutes and invalid signatures are rejected. Settlement is
+idempotent, so provider retries cannot credit the wallet twice.
+
+The provider adapter is deliberately generic so Easypaisa, JazzCash, or a card
+processor can be selected without changing the client contract. The provider's
+method token—not a raw card or account number—is sent when creating the intent.

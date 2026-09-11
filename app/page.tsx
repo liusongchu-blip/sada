@@ -1,12 +1,13 @@
 "use client";
 /* eslint-disable jsx-a11y/no-autofocus */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ActivityCenterScreen, InventoryCenterScreen, MarketplaceScreen, PartnerCenterScreen, SafetyCenterScreen } from "./systems";
 import { CollectionScreen, CreateRoomScreen, GameHistoryScreen, InviteFriendsScreen, ProfileSettingsScreen, SearchScreen, UserProfileScreen, VipBenefitsScreen } from "./prototype-flows";
 import { initialPaymentOrders, PaymentCenterScreen, PaymentOrder } from "./payment";
 import { useAppLocalization } from "./localization";
+import { sadaApi, SadaApiError, type SessionUser } from "./api-client";
 import "./polish.css";
 import "./polish-fixes.css";
 import "./button-system.css";
@@ -137,7 +138,7 @@ function MediaRow({ kind, title, meta, onClick }: { kind: "game" | "drama"; titl
   return <button className={`media-row media-${kind}`} onClick={onClick}><span className="media-image" aria-hidden="true"/><span className="media-content"><span className="media-icon"><Icon name={kind === "game" ? "game" : "play"} size={19}/></span><strong>{title}</strong><small>{meta}</small>{kind === "game" && <span className="playing-friends">{[0,1,2,3,4].map(i => <Avatar key={i} name={friends[i][0]} index={friends[i][1]} size="small"/>)}</span>}</span><span className="row-action">{kind === "drama" ? <Icon name="bookmark" size={22}/> : <Icon name="chevron" size={21}/>}</span></button>;
 }
 
-function AccountFlow({ onComplete }: { onComplete: () => void }) {
+function AccountFlow({ onComplete }: { onComplete: (user: SessionUser) => void }) {
   const [step, setStep] = useState<"welcome" | "phone" | "otp" | "profile" | "interests" | "permissions" | "suggestions" | "tasks">("welcome");
   const [phone, setPhone] = useState("+92 ");
   const [otp, setOtp] = useState("");
@@ -147,19 +148,50 @@ function AccountFlow({ onComplete }: { onComplete: () => void }) {
   const [permissions, setPermissions] = useState({ notifications:true, microphone:true, contacts:false });
   const [following, setFollowing] = useState<string[]>(["Maira", "Hamza"]);
   const [tasks, setTasks] = useState([false, false, false, false, false]);
+  const [challengeId, setChallengeId] = useState<string | null>(null);
+  const [verifiedUser, setVerifiedUser] = useState<SessionUser | null>(null);
+  const [developmentCode, setDevelopmentCode] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const done = tasks.filter(Boolean).length;
   const sequence=["phone","otp","profile","interests","permissions","suggestions","tasks"] as const;
   const current=Math.max(0,sequence.indexOf(step as (typeof sequence)[number]));
   const progress=<div className="account-progress"><span>{current+1} / {sequence.length}</span><i><b style={{width:`${(current+1)/sequence.length*100}%`}}/></i></div>;
   const back=()=>setStep(current<=0?"welcome":sequence[current-1]);
-  if (step === "welcome") return <div className="account-screen"><div className="account-brand">SADA</div><div className="account-hero"><span className="account-mark">S</span><h1>Find your people.</h1><p>Live conversations, playful nights and stories worth sharing.</p></div><div className="account-actions"><button className="join-button" onClick={() => setStep("phone")}>Continue with phone</button><button className="text-button" onClick={onComplete}>I already have an account</button><small>By continuing, you confirm you are 18+ and agree to our Terms, Privacy Policy and Community Rules.</small></div></div>;
-  if (step === "phone") return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="account-form"><small className="account-kicker">Secure account</small><h1>Welcome to SADA</h1><p>Enter your Pakistan mobile number. We’ll send a secure verification code.</p><label>Phone number<input aria-label="Phone number" value={phone} onChange={e => setPhone(e.target.value)} inputMode="tel"/></label><button className="join-button" disabled={phone.replace(/\D/g,"").length < 10} onClick={() => setStep("otp")}>Send code</button><small>Standard carrier messaging rates may apply.</small></div></div>;
-  if (step === "otp") return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="account-form"><small className="account-kicker">Verify +92 mobile</small><h1>Enter the 6-digit code</h1><p>We sent a one-time code to {phone}. SADA staff will never ask for it.</p><label>One-time code<input autoFocus aria-label="One-time code" value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,"").slice(0,6))} inputMode="numeric" placeholder="000000"/><small>{otp.length} / 6 · Demo code 482915</small></label><button className="join-button" disabled={otp.length!==6} onClick={() => setStep("profile")}>Verify and continue</button><button className="text-button" onClick={()=>setOtp("482915")}>Use demo code</button></div></div>;
-  if (step === "profile") return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="account-form onboarding-form"><small className="account-kicker">Your public identity</small><h1>Build your profile</h1><p>Choose what people will see in rooms, games and chat.</p><div className="onboard-avatar-row">{["A","K","S","M"].map((letter,index)=><button key={letter} className={index===0?"selected":""} aria-label={`Avatar ${index+1}`}>{letter}</button>)}</div><label>Display name<input value={displayName} onChange={e=>setDisplayName(e.target.value)} maxLength={30}/></label><label>City<select value={city} onChange={e=>setCity(e.target.value)}><option>Karachi</option><option>Lahore</option><option>Islamabad</option><option>Other</option></select></label><button className="join-button" disabled={!displayName.trim()} onClick={() => setStep("interests")}>Save profile</button><small>Names and photos are checked against Community Rules before publication.</small></div></div>;
+  const normalizedPhone = `+${phone.replace(/\D/g, "")}`;
+  const requestCode = async () => {
+    setPending(true); setError(null);
+    try {
+      const result = await sadaApi.auth.requestOtp(normalizedPhone);
+      setChallengeId(result.challengeId); setDevelopmentCode(result.developmentCode ?? null); setStep("otp");
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Could not send the verification code"); }
+    finally { setPending(false); }
+  };
+  const verifyCode = async () => {
+    if (!challengeId) return;
+    setPending(true); setError(null);
+    try {
+      const result = await sadaApi.auth.verifyOtp(challengeId, normalizedPhone, otp);
+      setVerifiedUser(result.user); setDisplayName(result.user.displayName); setStep("profile");
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Verification failed"); }
+    finally { setPending(false); }
+  };
+  const saveProfile = async () => {
+    setPending(true); setError(null);
+    try {
+      const user = await sadaApi.auth.updateMe({ displayName: displayName.trim(), city });
+      setVerifiedUser(user); setStep("interests");
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Profile could not be saved"); }
+    finally { setPending(false); }
+  };
+  if (step === "welcome") return <div className="account-screen"><div className="account-brand">SADA</div><div className="account-hero"><span className="account-mark">S</span><h1>Find your people.</h1><p>Live conversations, playful nights and stories worth sharing.</p></div><div className="account-actions"><button className="join-button" onClick={() => setStep("phone")}>Continue with phone</button><button className="text-button" onClick={() => setStep("phone")}>I already have an account</button><small>By continuing, you confirm you are 18+ and agree to our Terms, Privacy Policy and Community Rules.</small></div></div>;
+  if (step === "phone") return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="account-form"><small className="account-kicker">Secure account</small><h1>Welcome to SADA</h1><p>Enter your Pakistan mobile number. We’ll send a secure verification code.</p><label>Phone number<input aria-label="Phone number" value={phone} onChange={e => setPhone(e.target.value)} inputMode="tel"/></label>{error ? <p role="alert">{error}</p> : null}<button className="join-button" disabled={pending || phone.replace(/\D/g,"").length < 10} onClick={requestCode}>{pending ? "Sending…" : "Send code"}</button><small>Standard carrier messaging rates may apply.</small></div></div>;
+  if (step === "otp") return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="account-form"><small className="account-kicker">Verify +92 mobile</small><h1>Enter the 6-digit code</h1><p>We sent a one-time code to {phone}. SADA staff will never ask for it.</p><label>One-time code<input autoFocus aria-label="One-time code" value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,"").slice(0,6))} inputMode="numeric" placeholder="000000"/><small>{otp.length} / 6{developmentCode ? " · Local development code available" : ""}</small></label>{error ? <p role="alert">{error}</p> : null}<button className="join-button" disabled={pending || otp.length!==6} onClick={verifyCode}>{pending ? "Verifying…" : "Verify and continue"}</button>{developmentCode ? <button className="text-button" onClick={()=>setOtp(developmentCode)}>Use local development code</button> : null}</div></div>;
+  if (step === "profile") return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="account-form onboarding-form"><small className="account-kicker">Your public identity</small><h1>Build your profile</h1><p>Choose what people will see in rooms, games and chat.</p><div className="onboard-avatar-row">{["A","K","S","M"].map((letter,index)=><button key={letter} className={index===0?"selected":""} aria-label={`Avatar ${index+1}`}>{letter}</button>)}</div><label>Display name<input value={displayName} onChange={e=>setDisplayName(e.target.value)} maxLength={30}/></label><label>City<select value={city} onChange={e=>setCity(e.target.value)}><option>Karachi</option><option>Lahore</option><option>Islamabad</option><option>Other</option></select></label>{error ? <p role="alert">{error}</p> : null}<button className="join-button" disabled={pending || !displayName.trim()} onClick={saveProfile}>{pending ? "Saving…" : "Save profile"}</button><small>Names and photos are checked against Community Rules before publication.</small></div></div>;
   if (step === "interests") return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="account-form onboarding-form"><small className="account-kicker">Personalize SADA</small><h1>What brings you here?</h1><p>Pick at least three. You can change these any time.</p><div className="interest-grid">{["Ludo","Cricket","Music","Poetry","Drama","Open chat","Carrom","Comedy"].map(item=><button key={item} className={interests.includes(item)?"selected":""} onClick={()=>setInterests(values=>values.includes(item)?values.filter(value=>value!==item):[...values,item])}>{interests.includes(item)?"✓ ":""}{item}</button>)}</div><button className="join-button" disabled={interests.length<3} onClick={() => setStep("permissions")}>Continue with {interests.length} interests</button></div></div>;
   if (step === "permissions") return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="account-form onboarding-form"><small className="account-kicker">You stay in control</small><h1>Choose permissions</h1><p>These are optional. SADA asks the device only when a feature needs access.</p><div className="permission-list">{([['notifications','Notifications','Room, friend and safety updates'],['microphone','Microphone','Speak in rooms and voice chat'],['contacts','Contacts','Privately find people you know']] as const).map(([key,title,meta])=><button key={key} onClick={()=>setPermissions(values=>({...values,[key]:!values[key]}))}><span><strong>{title}</strong><small>{meta}</small></span><b className={permissions[key]?"toggle on":"toggle"}><i/></b></button>)}</div><button className="join-button" onClick={() => setStep("suggestions")}>Continue</button><small>Contact matching uses protected comparison and never publishes your address book.</small></div></div>;
   if (step === "suggestions") return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="account-form onboarding-form"><small className="account-kicker">Recommended for {city}</small><h1>Meet your first crew</h1><p>Follow people who share your interests. Following is not the same as becoming friends.</p><div className="onboard-people">{[["Maira",1,"Music · Drama"],["Hamza",0,"Ludo · Cricket"],["Noor",3,"Poetry · Open chat"],["Sana",5,"Carrom · Comedy"]].map(([name,index,meta])=><button key={name} onClick={()=>setFollowing(values=>values.includes(String(name))?values.filter(value=>value!==name):[...values,String(name)])}><Avatar name={String(name)} index={Number(index)}/><span><strong>{name}</strong><small>{meta}</small></span><b>{following.includes(String(name))?"Following":"Follow"}</b></button>)}</div><button className="join-button" onClick={() => setStep("tasks")}>Continue with {following.length} follows</button></div></div>;
-  return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="task-progress"><span>{done} / 5 complete</span><b><i style={{width:`${done / 5 * 100}%`}}/></b></div><div className="account-form tasks-form"><small className="account-kicker">Seven-day welcome journey</small><h1>Start with your crew.</h1><p>Five guided moments unlock your 80 Diamond welcome pack.</p>{["Enter a recommended voice room","Speak or follow the host","Add your first friend","Play one Ludo round","Browse the SADA Store"].map((label,index) => <button key={label} className={`onboard-task${tasks[index]?" done":""}`} onClick={() => setTasks(items => items.map((value,i) => i === index ? !value : value))}><span>{tasks[index]?"✓":index+1}</span><b>{label}</b><small>{tasks[index]?"Complete":"Tap to complete demo"}</small></button>)}<button className="join-button" disabled={done < 5} onClick={onComplete}>Claim reward & enter SADA</button></div></div>;
+  return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="task-progress"><span>{done} / 5 complete</span><b><i style={{width:`${done / 5 * 100}%`}}/></b></div><div className="account-form tasks-form"><small className="account-kicker">Seven-day welcome journey</small><h1>Start with your crew.</h1><p>Five guided moments unlock your 80 Diamond welcome pack.</p>{["Enter a recommended voice room","Speak or follow the host","Add your first friend","Play one Ludo round","Browse the SADA Store"].map((label,index) => <button key={label} className={`onboard-task${tasks[index]?" done":""}`} onClick={() => setTasks(items => items.map((value,i) => i === index ? !value : value))}><span>{tasks[index]?"✓":index+1}</span><b>{label}</b><small>{tasks[index]?"Complete":"Tap to complete demo"}</small></button>)}<button className="join-button" disabled={done < 5 || !verifiedUser} onClick={() => verifiedUser && onComplete(verifiedUser)}>Claim reward & enter SADA</button></div></div>;
 }
 
 function VoiceRoomsScreen({ onBack, onOpenRoom, onSearch, onCreate }: { onBack: () => void; onOpenRoom: () => void; onSearch:()=>void; onCreate:()=>void }) {
@@ -294,6 +326,7 @@ export default function Home({ initialTheme = "night" }: { initialTheme?: AppThe
   const [vipCategory,setVipCategory]=useState("All");
   const [diamondBalance,setDiamondBalance]=useState(1250);
   const [paymentOrders,setPaymentOrders]=useState<PaymentOrder[]>(initialPaymentOrders);
+  const [sessionUser,setSessionUser]=useState<SessionUser | null>(null);
   const [activeNav, setActiveNav] = useState<NavKey>("Home");
   const [toast, setToast] = useState<string | null>(null);
   const [joined, setJoined] = useState(false);
@@ -311,6 +344,18 @@ export default function Home({ initialTheme = "night" }: { initialTheme?: AppThe
     return () => window.cancelAnimationFrame(frame);
   }, []);
   useEffect(() => {
+    let active = true;
+    sadaApi.auth.me().then(user => {
+      if (!active) return;
+      setSessionUser(user);
+      if (user.wallet) setDiamondBalance(user.wallet.diamonds + user.wallet.boundDiamonds);
+    }).catch(cause => {
+      if (cause instanceof SadaApiError && cause.status === 401) return;
+      console.error("Unable to restore SADA session", cause);
+    });
+    return () => { active = false; };
+  }, []);
+  useEffect(() => {
     document.documentElement.style.colorScheme = theme === "day" ? "light" : "dark";
   }, [theme]);
   useEffect(() => {
@@ -325,7 +370,7 @@ export default function Home({ initialTheme = "night" }: { initialTheme?: AppThe
     const interval = window.setInterval(() => setBannerIndex(index => (index + 1) % homeBanners.length), 5000);
     return () => window.clearInterval(interval);
   }, [appScreen, theme]);
-  const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(null), 2200); };
+  const notify = useCallback((message: string) => { setToast(message); window.setTimeout(() => setToast(null), 2200); }, []);
   const changeTheme = (nextTheme: AppTheme) => {
     setTheme(nextTheme);
     window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
@@ -338,7 +383,7 @@ export default function Home({ initialTheme = "night" }: { initialTheme?: AppThe
     if (activeBanner.target === "drama") { setActiveNav("Discover"); setAppScreen("drama"); }
   };
   return <main className={`site-shell theme-${theme}`} data-theme={theme}><div className="app-frame" lang={locale === "ur" ? "ur-PK" : locale === "zh" ? "zh-CN" : "en-PK"} dir={locale === "ur" ? "rtl" : "ltr"}>
-    {accountOpen ? <AccountFlow onComplete={() => { setAccountOpen(false); notify("Welcome to SADA · 80 Diamonds claimed"); }}/> : <>
+    {accountOpen ? <AccountFlow onComplete={(user) => { setSessionUser(user); if (user.wallet) setDiamondBalance(user.wallet.diamonds + user.wallet.boundDiamonds); setAccountOpen(false); notify(`Welcome to SADA · ${user.displayName}`); }}/> : <>
     {appScreen === "home" ? <>
     <header className="app-header"><button className="wordmark wordmark-image" aria-label="Open account setup" onClick={() => setAccountOpen(true)}><Image src={theme === "day" ? "/media/sada-logo-bright.png" : "/media/sada-logo-emerald.png"} width={1983} height={793} sizes="116px" priority alt=""/></button><div className="header-actions"><button className="icon-button" onClick={()=>setAppScreen("search")} aria-label="Search SADA"><Icon name="search" size={19}/></button><button className="balance" onClick={() => {setEconomyMode("wallet");setAppScreen("economy")}}><Icon name="diamond" size={19}/>{diamondBalance.toLocaleString()}</button><button className="icon-button language-toggle" aria-label="Language" aria-expanded={languageOpen} onClick={() => setLanguageOpen(value => !value)}>{copy.code}</button></div></header>
     {languageOpen ? <div className="language-menu" role="menu" aria-label="Choose language">{(["en","zh","ur"] as const).map(item => <button key={item} role="menuitem" className={locale === item ? "active" : ""} onClick={() => { setLocale(item); setLanguageOpen(false); notify(homeCopy[item].selectedToast); }}><span>{homeCopy[item].code}</span><strong>{homeCopy[item].language}</strong>{locale === item ? <b>✓</b> : null}</button>)}</div> : null}
@@ -347,7 +392,7 @@ export default function Home({ initialTheme = "night" }: { initialTheme?: AppThe
         {activeBanner.target ? <button key={activeBanner.src} className="home-banner-slide home-banner-link" aria-label={activeBanner.label} onClick={openActiveBanner}><Image src={activeBanner.src} width={2172} height={724} sizes="(max-width: 699px) calc(100vw - 40px), 390px" priority alt={activeBanner.alt}/></button> : <div key={activeBanner.src} className="home-banner-slide"><Image src={activeBanner.src} width={2172} height={724} sizes="(max-width: 699px) calc(100vw - 40px), 390px" priority alt={activeBanner.alt}/></div>}
         <div className="home-banner-dots" aria-label="Choose featured banner">{homeBanners.map((banner,index) => <button key={banner.src} className={index === bannerIndex ? "active" : ""} aria-label={`Show banner ${index + 1}: ${banner.label}`} aria-current={index === bannerIndex ? "true" : undefined} onClick={() => setBannerIndex(index)}/>)}</div>
       </section> : null}
-      <h1>{copy.greeting}</h1>
+      <h1>{copy.greeting.replace("Ayaan", sessionUser?.displayName ?? "Ayaan")}</h1>
       <section className="friends-section" aria-labelledby="friends-title"><h2 id="friends-title">{copy.friends}</h2><div className="friend-rail">{friends.map(([name,index]) => <button key={name} aria-label={`Open ${name}'s profile`} onClick={() => {setSelectedPerson({name,index});setAppScreen("userprofile")}}><Avatar name={name} index={index}/></button>)}<button className="add-friend" aria-label="Invite a friend" onClick={() => setAppScreen("invite")}><Icon name="personAdd" size={24}/></button></div></section>
       <button className="home-activity" onClick={() => setAppScreen("activity")}><span><small>{copy.activityMeta}</small><strong>{copy.activityTitle}</strong><i aria-hidden="true"><b/></i></span><b>60%</b></button>
       <div className="section-heading"><h2>{copy.liveNow}</h2><button aria-label="See all live rooms" onClick={() => setAppScreen("rooms")}><Icon name="chevron" size={18}/></button></div><VoiceRoom copy={copy} onJoin={() => { joinRoom(); setAppScreen("room"); }}/>
@@ -369,7 +414,7 @@ export default function Home({ initialTheme = "night" }: { initialTheme?: AppThe
     : appScreen === "vipbenefits" ? <VipBenefitsScreen category={vipCategory} onBack={()=>setAppScreen("economy")} notify={notify}/>
     : appScreen === "profilesettings" ? <ProfileSettingsScreen theme={theme} onThemeChange={changeTheme} onBack={()=>setAppScreen("profile")} notify={notify}/>
     : appScreen === "gamehistory" ? <GameHistoryScreen onBack={()=>setAppScreen("games")} onPlay={()=>setAppScreen("ludo")}/>
-    : appScreen === "payment" ? <PaymentCenterScreen balance={diamondBalance} orders={paymentOrders} onBalanceChange={setDiamondBalance} onOrdersChange={setPaymentOrders} onBack={()=>{setEconomyMode("wallet");setAppScreen("economy")}} notify={notify}/>
+    : appScreen === "payment" ? <PaymentCenterScreen authenticated={Boolean(sessionUser)} balance={diamondBalance} orders={paymentOrders} onBalanceChange={setDiamondBalance} onOrdersChange={setPaymentOrders} onBack={()=>{setEconomyMode("wallet");setAppScreen("economy")}} onSignIn={()=>setAccountOpen(true)} notify={notify}/>
     : appScreen === "activity" ? <ActivityCenterScreen onBack={()=>setAppScreen("profile")} notify={notify}/>
     : appScreen === "inventory" ? <InventoryCenterScreen onBack={()=>setAppScreen("profile")} onMarketplace={()=>setAppScreen("marketplace")} notify={notify}/>
     : appScreen === "marketplace" ? <MarketplaceScreen onBack={()=>setAppScreen("profile")} notify={notify}/>

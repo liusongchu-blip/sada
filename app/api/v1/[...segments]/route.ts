@@ -1,6 +1,6 @@
 import {
-  ApiError, body, boolField, created, cursorLimit, database, empty, failure, intField,
-  normalizePhone, ok, oneOf, publicUser, randomToken, requireAdmin, requireUser, runtimeEnv, sessionToken, sha256, stringField,
+  ApiError, assertSameOriginForCookieMutation, body, boolField, created, cursorLimit, database, empty, failure, intField,
+  normalizePhone, ok, oneOf, publicUser, randomToken, requireAdmin, requireUser, runtimeEnv, secureEqual, sessionToken, sha256, stringField,
   type UserRow,
 } from "@/server/api";
 
@@ -22,6 +22,8 @@ async function dispatch(method: string, request: Request, context: Context): Pro
     const url = new URL(request.url);
 
     if (method === "GET" && path === "/health") return health();
+    if (method === "POST" && path === "/payments/webhooks/provider") return paymentWebhook(request);
+    assertSameOriginForCookieMutation(request);
     if (method === "POST" && path === "/auth/otp/request") return requestOtp(request);
     if (method === "POST" && path === "/auth/otp/verify") return verifyOtp(request);
     if (method === "POST" && path === "/auth/logout") return logout(request);
@@ -31,7 +33,7 @@ async function dispatch(method: string, request: Request, context: Context): Pro
     if (method === "GET" && path === "/market/listings") return marketListings(url);
 
     if (segments[0] === "admin") {
-      const admin = requireAdmin(request);
+      const admin = await requireAdmin(request);
       return adminRoute(method, request, segments, url, admin);
     }
 
@@ -205,7 +207,7 @@ async function verifyOtp(request: Request) {
   const challenge = await db.prepare("SELECT * FROM otp_challenges WHERE id = ? AND phone = ? AND consumed_at IS NULL AND expires_at > CURRENT_TIMESTAMP").bind(challengeId, phone).first<Row>();
   if (!challenge || Number(challenge.attempts) >= 5) throw new ApiError(401, "OTP_INVALID", "Verification code is invalid or expired");
   const expected = await sha256(`${challengeId}:${phone}:${code}`);
-  if (expected !== challenge.code_hash) {
+  if (!await secureEqual(expected, String(challenge.code_hash))) {
     await db.prepare("UPDATE otp_challenges SET attempts = attempts + 1 WHERE id = ?").bind(challengeId).run();
     throw new ApiError(401, "OTP_INVALID", "Verification code is invalid or expired");
   }
@@ -221,7 +223,8 @@ async function verifyOtp(request: Request) {
   ];
   await db.batch(statements);
   user = user ?? await db.prepare("SELECT * FROM users WHERE id = ?").bind(userId).first<UserRow>();
-  const response = ok({ token, expiresIn: 2_592_000, user: publicUser(user!) });
+  const wallet = await db.prepare("SELECT diamonds, bound_diamonds AS boundDiamonds, game_coins AS gameCoins FROM wallets WHERE user_id = ?").bind(userId).first();
+  const response = ok({ token, expiresIn: 2_592_000, user: { ...publicUser(user!), phone: user!.phone, email: user!.email, wallet } });
   response.headers.append("set-cookie", `sada_session=${encodeURIComponent(token)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000${new URL(request.url).protocol === "https:" ? "; Secure" : ""}`);
   return response;
 }
@@ -249,7 +252,8 @@ async function updateMe(request: Request, user: UserRow) {
   if (!name && bio === undefined && !city && !locale) throw new ApiError(422, "NO_CHANGES", "No supported profile fields were supplied");
   await database().prepare(`UPDATE users SET display_name = COALESCE(?, display_name), bio = COALESCE(?, bio), city = COALESCE(?, city), locale = COALESCE(?, locale), updated_at = CURRENT_TIMESTAMP WHERE id = ?`).bind(name ?? null, bio ?? null, city ?? null, locale ?? null, user.id).run();
   const updated = await database().prepare("SELECT * FROM users WHERE id = ?").bind(user.id).first<UserRow>();
-  return ok(publicUser(updated!));
+  const wallet = await database().prepare("SELECT diamonds, bound_diamonds AS boundDiamonds, game_coins AS gameCoins FROM wallets WHERE user_id = ?").bind(user.id).first();
+  return ok({ ...publicUser(updated!), phone: updated!.phone, email: updated!.email, wallet });
 }
 
 async function listUsers(url: URL, current: UserRow) {
@@ -488,25 +492,92 @@ async function createPaymentIntent(request: Request, user: UserRow) {
   ].some((pack) => pack.amountPkr === amountPkr && pack.diamonds === diamonds && pack.bonus === bonus);
   if (!validPack) throw new ApiError(422, "INVALID_PAYMENT_PACK", "Payment amount and Diamond pack do not match the server catalog");
   const existing = await db.prepare("SELECT * FROM payment_intents WHERE user_id = ? AND idempotency_key = ?").bind(user.id, idempotency).first(); if (existing) return ok(existing);
-  const method = await db.prepare("SELECT 1 FROM payment_methods WHERE id = ? AND user_id = ?").bind(methodId, user.id).first(); if (!method) throw new ApiError(404, "PAYMENT_METHOD_NOT_FOUND", "Payment method not found");
-  const id = crypto.randomUUID(); await db.prepare("INSERT INTO payment_intents (id, user_id, method_id, amount_pkr, diamonds, bonus_diamonds, idempotency_key) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(id, user.id, methodId, amountPkr, diamonds, bonus, idempotency).run();
-  return created({ id, amountPkr, diamonds, bonusDiamonds: bonus, status: "requires_confirmation" });
+  const method = await db.prepare("SELECT provider, provider_token FROM payment_methods WHERE id = ? AND user_id = ?").bind(methodId, user.id).first<Row>(); if (!method) throw new ApiError(404, "PAYMENT_METHOD_NOT_FOUND", "Payment method not found");
+  const id = crypto.randomUUID();
+  const config = runtimeEnv();
+  let providerReference: string | null = null;
+  if (config.PAYMENT_PROVIDER_URL) {
+    const response = await fetch(`${config.PAYMENT_PROVIDER_URL.replace(/\/$/, "")}/intents`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "idempotency-key": idempotency, ...(config.PAYMENT_PROVIDER_TOKEN ? { authorization: `Bearer ${config.PAYMENT_PROVIDER_TOKEN}` } : {}) },
+      body: JSON.stringify({ paymentId: id, provider: method.provider, methodToken: method.provider_token, amountPkr, currency: "PKR", metadata: { userId: user.id, diamonds, bonusDiamonds: bonus } }),
+    });
+    if (!response.ok) throw new ApiError(502, "PAYMENT_PROVIDER_UNAVAILABLE", "Payment provider could not create the payment");
+    const providerPayload = await response.json() as Record<string, unknown>;
+    if (typeof providerPayload.reference !== "string" || providerPayload.reference.length > 200) throw new ApiError(502, "PAYMENT_PROVIDER_INVALID", "Payment provider returned an invalid reference");
+    providerReference = providerPayload.reference;
+  } else if (config.SADA_ENV === "production") {
+    throw new ApiError(503, "PAYMENT_NOT_CONFIGURED", "Payment provider is not configured");
+  }
+  await db.prepare("INSERT INTO payment_intents (id, user_id, method_id, amount_pkr, diamonds, bonus_diamonds, provider_reference, idempotency_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").bind(id, user.id, methodId, amountPkr, diamonds, bonus, providerReference, idempotency).run();
+  return created({ id, amountPkr, diamonds, bonusDiamonds: bonus, providerReference, status: "requires_confirmation" });
 }
 
 async function confirmPayment(request: Request, user: UserRow, paymentId: string) {
   const input = await body(request), otp = stringField(input, "otp", { min: 6, max: 6 })!, db = database(), payment = await db.prepare("SELECT * FROM payment_intents WHERE id = ? AND user_id = ?").bind(paymentId, user.id).first<Row>();
   if (!payment) throw new ApiError(404, "PAYMENT_NOT_FOUND", "Payment intent not found"); if (payment.status === "succeeded") return ok(payment); if (payment.status !== "requires_confirmation") throw new ApiError(409, "PAYMENT_STATE_INVALID", "Payment cannot be confirmed in its current state");
   const config = runtimeEnv();
-  if (config.PAYMENT_PROVIDER_URL) { const response = await fetch(`${config.PAYMENT_PROVIDER_URL}/confirm`, { method: "POST", headers: { "content-type": "application/json", ...(config.PAYMENT_PROVIDER_TOKEN ? { authorization: `Bearer ${config.PAYMENT_PROVIDER_TOKEN}` } : {}) }, body: JSON.stringify({ paymentId, otp }) }); if (!response.ok) throw new ApiError(402, "PAYMENT_DECLINED", "Payment provider declined the payment"); }
+  if (config.PAYMENT_PROVIDER_URL) { const response = await fetch(`${config.PAYMENT_PROVIDER_URL.replace(/\/$/, "")}/confirm`, { method: "POST", headers: { "content-type": "application/json", ...(config.PAYMENT_PROVIDER_TOKEN ? { authorization: `Bearer ${config.PAYMENT_PROVIDER_TOKEN}` } : {}) }, body: JSON.stringify({ paymentId, providerReference: payment.provider_reference, otp }) }); if (!response.ok) throw new ApiError(402, "PAYMENT_DECLINED", "Payment provider declined the payment"); }
   else if (config.SADA_ENV === "production") throw new ApiError(503, "PAYMENT_NOT_CONFIGURED", "Payment provider is not configured");
   else if (otp !== "123456") throw new ApiError(402, "PAYMENT_DECLINED", "Use demo OTP 123456 in local development");
-  const providerReference = `SADA-${Date.now()}`, completed = await db.prepare("UPDATE payment_intents SET status = 'succeeded', provider_reference = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND status = 'requires_confirmation'").bind(providerReference, paymentId).run();
-  if (completed.meta.changes) await db.batch([db.prepare("UPDATE wallets SET diamonds = diamonds + ?, bound_diamonds = bound_diamonds + ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ?").bind(payment.diamonds, payment.bonus_diamonds, user.id), db.prepare("INSERT INTO wallet_ledger (id, user_id, currency, amount, reason, reference_type, reference_id, idempotency_key) VALUES (?, ?, 'diamonds', ?, 'payment_recharge', 'payment', ?, ?)").bind(crypto.randomUUID(), user.id, payment.diamonds, paymentId, `payment:${paymentId}`)]);
-  const wallet = await db.prepare("SELECT diamonds, bound_diamonds AS boundDiamonds, game_coins AS gameCoins FROM wallets WHERE user_id = ?").bind(user.id).first(); return ok({ id: paymentId, status: "succeeded", providerReference, wallet });
+  if (config.SADA_ENV === "production") {
+    await db.prepare("UPDATE payment_intents SET status = 'processing', updated_at = CURRENT_TIMESTAMP WHERE id = ? AND status = 'requires_confirmation'").bind(paymentId).run();
+    return ok({ id: paymentId, status: "processing", providerReference: payment.provider_reference });
+  }
+  const providerReference = String(payment.provider_reference ?? `SADA-LOCAL-${Date.now()}`);
+  const wallet = await settlePayment(paymentId, providerReference);
+  return ok({ id: paymentId, status: "succeeded", providerReference, wallet });
 }
 
 async function paymentReceipts(user: UserRow) {
-  const result = await database().prepare("SELECT id, amount_pkr, diamonds, bonus_diamonds, status, provider_reference, created_at, updated_at FROM payment_intents WHERE user_id = ? ORDER BY created_at DESC LIMIT 100").bind(user.id).all(); return ok({ items: result.results });
+  const result = await database().prepare("SELECT pi.id, pi.amount_pkr, pi.diamonds, pi.bonus_diamonds, pi.status, pi.provider_reference, pi.created_at, pi.updated_at, pm.display_label AS method_label FROM payment_intents pi LEFT JOIN payment_methods pm ON pm.id = pi.method_id WHERE pi.user_id = ? ORDER BY pi.created_at DESC LIMIT 100").bind(user.id).all(); return ok({ items: result.results });
+}
+
+async function paymentWebhook(request: Request) {
+  const config = runtimeEnv();
+  if (!config.PAYMENT_WEBHOOK_SECRET) throw new ApiError(503, "PAYMENT_WEBHOOK_NOT_CONFIGURED", "Payment webhook secret is not configured");
+  const raw = await request.text();
+  if (raw.length > 65_536) throw new ApiError(413, "BODY_TOO_LARGE", "Webhook body exceeds 64 KiB");
+  const signatureHeader = request.headers.get("x-sada-signature") ?? "";
+  const parts = Object.fromEntries(signatureHeader.split(",").map(part => part.trim().split("=", 2)));
+  const timestamp = Number(parts.t);
+  if (!Number.isFinite(timestamp) || Math.abs(Date.now() - timestamp * 1000) > 300_000) throw new ApiError(401, "WEBHOOK_TIMESTAMP_INVALID", "Webhook timestamp is invalid");
+  const expected = await hmacSha256(config.PAYMENT_WEBHOOK_SECRET, `${timestamp}.${raw}`);
+  if (!parts.v1 || !await secureEqual(parts.v1, expected)) throw new ApiError(401, "WEBHOOK_SIGNATURE_INVALID", "Webhook signature is invalid");
+  let input: Record<string, unknown>;
+  try { input = JSON.parse(raw) as Record<string, unknown>; } catch { throw new ApiError(400, "INVALID_JSON", "Webhook body must be valid JSON"); }
+  const paymentId = stringField(input, "paymentId", { max: 80 })!;
+  const providerReference = stringField(input, "providerReference", { max: 200 })!;
+  const status = oneOf(stringField(input, "status", { max: 20 }), ["succeeded", "failed"], "status");
+  if (status === "failed") {
+    await database().prepare("UPDATE payment_intents SET status = 'failed', failure_code = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND status <> 'succeeded'").bind(typeof input.failureCode === "string" ? input.failureCode.slice(0, 80) : "provider_declined", paymentId).run();
+    return ok({ received: true, paymentId, status });
+  }
+  await settlePayment(paymentId, providerReference);
+  return ok({ received: true, paymentId, status });
+}
+
+async function settlePayment(paymentId: string, providerReference: string) {
+  const db = database();
+  const payment = await db.prepare("SELECT * FROM payment_intents WHERE id = ?").bind(paymentId).first<Row>();
+  if (!payment) throw new ApiError(404, "PAYMENT_NOT_FOUND", "Payment intent not found");
+  if (!["requires_confirmation", "processing", "succeeded"].includes(String(payment.status))) throw new ApiError(409, "PAYMENT_STATE_INVALID", "Payment cannot be settled in its current state");
+  if (payment.status !== "succeeded") {
+    await db.batch([
+      db.prepare("UPDATE wallets SET diamonds = diamonds + ?, bound_diamonds = bound_diamonds + ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND EXISTS (SELECT 1 FROM payment_intents WHERE id = ? AND status IN ('requires_confirmation', 'processing'))").bind(payment.diamonds, payment.bonus_diamonds, payment.user_id, paymentId),
+      db.prepare("INSERT INTO wallet_ledger (id, user_id, currency, amount, reason, reference_type, reference_id, idempotency_key) SELECT ?, ?, 'diamonds', ?, 'payment_recharge', 'payment', ?, ? WHERE EXISTS (SELECT 1 FROM payment_intents WHERE id = ? AND status IN ('requires_confirmation', 'processing'))").bind(crypto.randomUUID(), payment.user_id, payment.diamonds, paymentId, `payment:${paymentId}`, paymentId),
+      db.prepare("INSERT INTO wallet_ledger (id, user_id, currency, amount, reason, reference_type, reference_id, idempotency_key) SELECT ?, ?, 'bound_diamonds', ?, 'payment_bonus', 'payment', ?, ? WHERE ? > 0 AND EXISTS (SELECT 1 FROM payment_intents WHERE id = ? AND status IN ('requires_confirmation', 'processing'))").bind(crypto.randomUUID(), payment.user_id, payment.bonus_diamonds, paymentId, `payment-bonus:${paymentId}`, payment.bonus_diamonds, paymentId),
+      db.prepare("UPDATE payment_intents SET status = 'succeeded', provider_reference = ?, settled_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND status IN ('requires_confirmation', 'processing')").bind(providerReference, paymentId),
+    ]);
+  }
+  return db.prepare("SELECT diamonds, bound_diamonds AS boundDiamonds, game_coins AS gameCoins FROM wallets WHERE user_id = ?").bind(payment.user_id).first();
+}
+
+async function hmacSha256(secret: string, value: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(value));
+  return Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, "0")).join("");
 }
 
 async function requestRefund(request: Request, user: UserRow, paymentId: string) {

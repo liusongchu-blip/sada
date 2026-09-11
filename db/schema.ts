@@ -116,7 +116,7 @@ export const paymentIntents = sqliteTable("payment_intents", {
   id: text("id").primaryKey(), userId: text("user_id").notNull().references(() => users.id), methodId: text("method_id").references(() => paymentMethods.id),
   amountPkr: integer("amount_pkr").notNull(), diamonds: integer("diamonds").notNull(), bonusDiamonds: integer("bonus_diamonds").notNull().default(0),
   status: text("status").notNull().default("requires_confirmation"), providerReference: text("provider_reference"),
-  idempotencyKey: text("idempotency_key").notNull(), failureCode: text("failure_code"), ...timestamps,
+  idempotencyKey: text("idempotency_key").notNull(), failureCode: text("failure_code"), settledAt: text("settled_at"), ...timestamps,
 }, (table) => [uniqueIndex("payment_intents_user_idempotency_unique").on(table.userId, table.idempotencyKey), index("payment_intents_user_created_idx").on(table.userId, table.createdAt)]);
 
 export const refundRequests = sqliteTable("refund_requests", {

@@ -6,7 +6,7 @@ import hostingConfig from "./.openai/hosting.json" with { type: "json" };
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
 
-const { d1, r2 } = hostingConfig;
+const { d1, r2 } = hostingConfig as { d1?: string; r2?: string };
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
@@ -14,6 +14,7 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const localBindingConfig = {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
+  vars: { SADA_ENV: "development", SADA_TRUST_OAI_HEADERS: "false" },
   d1_databases: d1
     ? [
         {
@@ -31,9 +32,10 @@ const localBindingConfig = {
         },
       ]
     : [],
+  images: { binding: "IMAGES" },
 };
 
-export default defineConfig(async () => {
+export default defineConfig(async ({ command }) => {
   // Keep Wrangler and Miniflare state project-local. These are non-secret tool
   // settings; application environment belongs in ignored `.env*` files.
   process.env.WRANGLER_WRITE_LOGS ??= "false";
@@ -52,7 +54,13 @@ export default defineConfig(async () => {
       sites(),
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
-        config: localBindingConfig,
+        // The local binding shim is needed only by the Vite dev server. During
+        // builds Wrangler reads wrangler.jsonc directly; including both would
+        // duplicate the DB binding in the generated deployment config.
+        config: command === "serve" ? localBindingConfig : {
+          main: "./worker/index.ts",
+          compatibility_flags: ["nodejs_compat"],
+        },
       }),
     ],
   };

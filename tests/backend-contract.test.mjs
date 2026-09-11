@@ -5,6 +5,8 @@ import test from "node:test";
 const routeSource = await readFile(new URL("../app/api/v1/[...segments]/route.ts", import.meta.url), "utf8");
 const schemaSource = await readFile(new URL("../db/schema.ts", import.meta.url), "utf8");
 const hosting = JSON.parse(await readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"));
+const serverSource = await readFile(new URL("../server/api.ts", import.meta.url), "utf8");
+const wrangler = await readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8");
 
 test("backend exposes every product domain used by the prototype", () => {
   for (const path of [
@@ -29,6 +31,20 @@ test("money-changing endpoints require idempotency and reject raw payment data",
   assert.match(routeSource, /RAW_PAYMENT_DATA_REJECTED/);
   assert.match(routeSource, /INVALID_PAYMENT_PACK/);
   assert.match(routeSource, /status = 'requires_confirmation'/);
+  assert.match(routeSource, /payments\/webhooks\/provider/);
+  assert.match(routeSource, /x-sada-signature/);
+  assert.match(routeSource, /hmacSha256/);
+  assert.match(routeSource, /status = 'processing'/);
+  assert.match(routeSource, /settled_at = CURRENT_TIMESTAMP/);
+});
+
+test("production identity and cookie mutation boundaries are explicit", () => {
+  assert.match(serverSource, /SADA_TRUST_OAI_HEADERS === "true"/);
+  assert.match(serverSource, /assertSameOriginForCookieMutation/);
+  assert.match(serverSource, /CSRF_REJECTED/);
+  assert.match(serverSource, /secureEqual/);
+  assert.match(wrangler, /"SADA_ENV": "production"/);
+  assert.match(wrangler, /"SADA_TRUST_OAI_HEADERS": "false"/);
 });
 
 test("admin surface exposes protected overview and moderation mutations", () => {
