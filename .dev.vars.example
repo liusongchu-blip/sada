@@ -1,0 +1,13 @@
+# Copy this file to .dev.vars for local integration testing.
+# Never commit .dev.vars or production secrets.
+
+SADA_ENV=development
+SADA_ADMIN_EMAILS=owner@example.com
+SADA_ADMIN_TOKEN=
+
+# Provider endpoints must accept the JSON contracts described in
+# docs/backend-api.md. Leave blank to use safe simulated behavior locally.
+SMS_PROVIDER_URL=
+SMS_PROVIDER_TOKEN=
+PAYMENT_PROVIDER_URL=
+PAYMENT_PROVIDER_TOKEN=

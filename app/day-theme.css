@@ -704,3 +704,144 @@
 .theme-day .latest-prototype-entry em {
   color: #626985 !important;
 }
+
+/*
+ * Bright-theme UI artwork and interaction-state lock.
+ * Collectible artwork (including avatar frames) deliberately stays untouched;
+ * only interface chrome, controls, status marks and decorative UI are remapped.
+ */
+.theme-day .store-showcase b,
+.theme-day .inventory-grid i b,
+.theme-day .item-tags b {
+  border-color: rgba(77, 136, 253, 0.2) !important;
+  background: linear-gradient(145deg, rgba(77, 136, 253, 0.07), rgba(237, 116, 189, 0.08)), #ffffff !important;
+  color: #626985 !important;
+}
+
+.theme-day .payment-methods > button > span,
+.theme-day .managed-method-main > span,
+.theme-day .method-security > span,
+.theme-day .payment-protection > span,
+.theme-day .mini-payment-orders > button > span,
+.theme-day .payment-order-mark,
+.theme-day .receipt-hero > span,
+.theme-day .detail-rule-list article > span,
+.theme-day .blocked-list article > span,
+.theme-day .gift-recipient-list button > span,
+.theme-day .report-success > span,
+.theme-day .settlement-list article > span.ready {
+  border-color: rgba(184, 77, 245, 0.22) !important;
+  background: linear-gradient(145deg, rgba(77, 136, 253, 0.13), rgba(237, 116, 189, 0.13)), #ffffff !important;
+  color: #8d45d2 !important;
+}
+
+.theme-day .safety-hero > span {
+  border-color: rgba(184, 77, 245, 0.26) !important;
+  background: linear-gradient(145deg, rgba(77, 136, 253, 0.1), rgba(237, 116, 189, 0.12)) !important;
+  color: #8d45d2 !important;
+}
+
+.theme-day .partner-hero > div span {
+  border-left-color: rgba(77, 136, 253, 0.2) !important;
+}
+
+.theme-day .system-sheet input {
+  border-color: rgba(77, 136, 253, 0.2) !important;
+  background: #ffffff !important;
+  color: #11163f !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 7px 18px rgba(54, 70, 133, 0.06) !important;
+}
+
+.theme-day .system-sheet input:focus,
+.theme-day .account-form input:focus,
+.theme-day .add-method-field input:focus {
+  outline: none !important;
+  border-color: rgba(184, 77, 245, 0.48) !important;
+  box-shadow: 0 0 0 3px rgba(184, 77, 245, 0.1), 0 7px 18px rgba(54, 70, 133, 0.07) !important;
+}
+
+.theme-day .room-orbit::before,
+.theme-day .voice-stage::before,
+.theme-day .voice-stage::after,
+.theme-day .orbit-two {
+  border-color: rgba(184, 77, 245, 0.2) !important;
+  box-shadow: 0 0 28px rgba(77, 136, 253, 0.1) !important;
+}
+
+.theme-day .account-brand {
+  color: #315fc4 !important;
+}
+
+.theme-day .account-mark {
+  box-shadow: 0 0 48px rgba(184, 77, 245, 0.11), inset 0 0 28px rgba(77, 136, 253, 0.08) !important;
+}
+
+.theme-day .onboard-task {
+  border-color: rgba(77, 136, 253, 0.16) !important;
+  background: #ffffff !important;
+  color: #11163f !important;
+  box-shadow: 0 8px 22px rgba(54, 70, 133, 0.07) !important;
+}
+
+.theme-day .onboard-task > span {
+  background: linear-gradient(145deg, rgba(77, 136, 253, 0.12), rgba(237, 116, 189, 0.12)) !important;
+  color: #4d88fd !important;
+}
+
+.theme-day .onboard-task.done {
+  border-color: rgba(184, 77, 245, 0.38) !important;
+  background: linear-gradient(115deg, rgba(77, 136, 253, 0.1), rgba(184, 77, 245, 0.08), rgba(237, 116, 189, 0.12)), #ffffff !important;
+  color: #11163f !important;
+}
+
+.theme-day .onboard-task.done > span {
+  background: linear-gradient(135deg, #4d88fd, #b84df5 58%, #ed74bd) !important;
+  color: #ffffff !important;
+}
+
+.theme-day .home-activity > b {
+  border-color: rgba(184, 77, 245, 0.28) !important;
+  color: #8d45d2 !important;
+}
+
+.theme-day .home-activity > span > i b {
+  background: linear-gradient(90deg, #4d88fd, #b84df5 58%, #ed74bd) !important;
+  box-shadow: 0 0 12px rgba(184, 77, 245, 0.18) !important;
+}
+
+.theme-day .live-label i,
+.theme-day .pulse-dot {
+  box-shadow: 0 0 0 4px rgba(77, 136, 253, 0.1) !important;
+}
+
+.theme-day .stage-mic {
+  box-shadow: 0 0 30px rgba(184, 77, 245, 0.16) !important;
+}
+
+.theme-day .media-icon {
+  border-color: rgba(184, 77, 245, 0.22) !important;
+}
+
+.theme-day .order-list article > span {
+  background: linear-gradient(145deg, rgba(77, 136, 253, 0.13), rgba(237, 116, 189, 0.13)), #ffffff !important;
+  color: #8d45d2 !important;
+}
+
+.theme-day .people-list button > b {
+  border-color: rgba(77, 136, 253, 0.24) !important;
+  background: linear-gradient(145deg, #ffffff, #f3f7ff) !important;
+  color: #4d88fd !important;
+}
+
+.theme-day .inventory-market {
+  border-color: rgba(77, 136, 253, 0.22) !important;
+  background: linear-gradient(145deg, #ffffff, #f4f1ff) !important;
+  color: #4d88fd !important;
+  box-shadow: 0 8px 20px rgba(54, 70, 133, 0.07) !important;
+}
+
+.theme-day .payment-protection {
+  border-color: rgba(77, 136, 253, 0.16) !important;
+  background: linear-gradient(135deg, rgba(77, 136, 253, 0.065), rgba(237, 116, 189, 0.07)), #ffffff !important;
+  color: #11163f !important;
+}

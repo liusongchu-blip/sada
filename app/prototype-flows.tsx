@@ -59,11 +59,29 @@ export function VipBenefitsScreen({ category="All", onBack, notify }: { category
   return <div className="feature-screen flow-screen"><FlowHeader title="VIP benefits" meta="Prestige without unfair advantage" onBack={onBack}/><div className="vip-level-card"><small>Current level</small><strong>VIP 3</strong><span>620 / 1,000 XP</span><i><b style={{width:"62%"}}/></i></div><div className="filter-row">{["All","Identity","Service","Marketplace","Room"].map(item=><button key={item} className={active===item?"active":""} onClick={()=>setActive(item)}>{item}</button>)}</div><div className="benefit-list">{visible.map(([type,title,description],index)=><article key={title}><span>{["♙","♜","◇","◉"][index%4]}</span><div><small>{type}</small><strong>{title}</strong><p>{description}</p></div><b>VIP 4</b></article>)}</div><button className="vip-upgrade" onClick={()=>setConfirm(true)}>Upgrade to VIP 4</button>{confirm&&<div className="system-sheet" role="dialog" aria-label="Confirm VIP upgrade"><button className="sheet-close" onClick={()=>setConfirm(false)}>×</button>{upgraded?<div className="mini-success"><span>✓</span><h2>VIP 4 activated</h2><p>Your new identity and service benefits are ready.</p><button onClick={()=>{setConfirm(false);notify("VIP 4 benefits activated")}}>View benefits</button></div>:<><small>Secure membership upgrade</small><h2>Activate VIP 4</h2><div className="checkout-row"><span>VIP 4 · 30 days</span><b>PKR 2,490</b></div><p>Includes identity, service and marketplace benefits. Game odds never change.</p><button className="flow-primary" onClick={()=>setUpgraded(true)}>Confirm upgrade</button></>}</div>}</div>;
 }
 
-export function ProfileSettingsScreen({ onBack, notify }: { onBack:()=>void; notify:(message:string)=>void }) {
+export function ProfileSettingsScreen({ theme, onThemeChange, onBack, notify }: { theme:"night"|"day"; onThemeChange:(theme:"night"|"day")=>void; onBack:()=>void; notify:(message:string)=>void }) {
   const [name,setName]=useState("Ayaan Khan");
   const [bio,setBio]=useState("Late-night stories, Ludo and good chai.");
   const [saved,setSaved]=useState(false);
-  return <div className="feature-screen flow-screen"><FlowHeader title="Edit profile" meta="Identity and preferences" onBack={onBack}/><div className="edit-avatar"><PersonMark name={name} index={2}/><button onClick={()=>notify("Photo picker opened")}>Change photo</button></div><div className="room-form"><label>Display name<input value={name} onChange={event=>{setName(event.target.value);setSaved(false)}}/></label><label>Bio<textarea value={bio} onChange={event=>{setBio(event.target.value);setSaved(false)}} maxLength={120}/><small>{bio.length}/120</small></label><label>City<select defaultValue="Karachi"><option>Karachi</option><option>Lahore</option><option>Islamabad</option></select></label><button className="flow-primary" onClick={()=>{setSaved(true);notify("Profile saved")}}>{saved?"Saved ✓":"Save changes"}</button></div></div>;
+  return <div className="feature-screen flow-screen">
+    <FlowHeader title="Settings" meta="Appearance and profile" onBack={onBack}/>
+    <section className="appearance-settings" aria-labelledby="appearance-title">
+      <div className="appearance-heading"><small>Appearance</small><h2 id="appearance-title">Color theme</h2><p>Choose how SADA looks on this device.</p></div>
+      <div className="theme-choice" role="group" aria-label="Color theme">
+        <button className={theme==="night"?"active":""} aria-pressed={theme==="night"} onClick={()=>onThemeChange("night")}>
+          <span className="theme-preview theme-preview-emerald" aria-hidden="true"><i/><i/><i/></span><span><strong>Emerald</strong><small>Deep green · dark gold</small></span>{theme==="night"?<b>Default · Active</b>:<b>Default</b>}
+        </button>
+        <button className={theme==="day"?"active":""} aria-pressed={theme==="day"} onClick={()=>onThemeChange("day")}>
+          <span className="theme-preview theme-preview-bright" aria-hidden="true"><i/><i/><i/></span><span><strong>Bright</strong><small>Ivory · vivid gradient</small></span>{theme==="day"?<b>Active</b>:<b>Choose</b>}
+        </button>
+      </div>
+    </section>
+    <section className="profile-edit-settings" aria-labelledby="profile-edit-title">
+      <div className="appearance-heading"><small>Profile</small><h2 id="profile-edit-title">Edit profile</h2></div>
+      <div className="edit-avatar"><PersonMark name={name} index={2}/><button onClick={()=>notify("Photo picker opened")}>Change photo</button></div>
+      <div className="room-form"><label>Display name<input value={name} onChange={event=>{setName(event.target.value);setSaved(false)}}/></label><label>Bio<textarea value={bio} onChange={event=>{setBio(event.target.value);setSaved(false)}} maxLength={120}/><small>{bio.length}/120</small></label><label>City<select defaultValue="Karachi"><option>Karachi</option><option>Lahore</option><option>Islamabad</option></select></label><button className="flow-primary" onClick={()=>{setSaved(true);notify("Profile saved")}}>{saved?"Saved ✓":"Save changes"}</button></div>
+    </section>
+  </div>;
 }
 
 export function GameHistoryScreen({ onBack, onPlay }: { onBack:()=>void; onPlay:()=>void }) {

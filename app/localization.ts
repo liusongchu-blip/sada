@@ -210,6 +210,14 @@ Object.assign(ur, {
   "Expected outcome":"متوقع نتیجہ","Current operation":"موجودہ عمل","Next operation":"اگلا عمل","System response":"سسٹم جواب","Continue":"جاری رکھیں","Confirm operation":"عمل کی تصدیق","Final confirmation":"آخری تصدیق","Operation complete":"عمل مکمل","Back to systems":"سسٹمز پر واپس","Run again":"دوبارہ چلائیں","Required before final submission":"آخری جمع سے پہلے ضروری","Ready for validation":"جانچ کے لیے تیار","VIP levels":"VIP درجات"
 });
 
+Object.assign(zh, {
+  "Settings":"设置","Appearance and profile":"外观与个人资料","Appearance":"外观","Color theme":"颜色主题","Choose how SADA looks on this device.":"选择 SADA 在此设备上的显示风格。","Emerald":"祖母绿","Deep green · dark gold":"深祖母绿 · 暗金","Default · Active":"默认 · 使用中","Default":"默认","Bright":"亮色","Ivory · vivid gradient":"象牙白 · 活力渐变","Active":"使用中","Choose":"选择","Profile":"个人资料","Emerald theme applied":"已切换为祖母绿主题","Bright theme applied":"已切换为亮色主题"
+});
+
+Object.assign(ur, {
+  "Settings":"ترتیبات","Appearance and profile":"ظاہری شکل اور پروفائل","Appearance":"ظاہری شکل","Color theme":"رنگ تھیم","Choose how SADA looks on this device.":"اس ڈیوائس پر SADA کی ظاہری شکل منتخب کریں۔","Emerald":"زمردی","Deep green · dark gold":"گہرا سبز · سنہری","Default · Active":"ڈیفالٹ · فعال","Default":"ڈیفالٹ","Bright":"روشن","Ivory · vivid gradient":"سفید · شوخ گریڈینٹ","Active":"فعال","Choose":"منتخب کریں","Profile":"پروفائل","Emerald theme applied":"زمردی تھیم لاگو ہوگیا","Bright theme applied":"روشن تھیم لاگو ہوگیا"
+});
+
 const originals = new WeakMap<Node, string>();
 const originalAttributes = new WeakMap<Element, Map<string, string>>();
 const attributes = ["aria-label", "placeholder", "title"];

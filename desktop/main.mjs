@@ -7,10 +7,9 @@ import { fileURLToPath } from "node:url";
 
 const desktopDir = path.dirname(fileURLToPath(import.meta.url));
 const appRoot = path.resolve(desktopDir, "..");
-const desktopTheme = process.env.SADA_DESKTOP_THEME === "day" ? "day" : "night";
-const productName = desktopTheme === "day" ? "SADA Day" : "SADA";
-const startPath = desktopTheme === "day" ? "/day" : "/";
-const productionPort = desktopTheme === "day" ? 3787 : 3786;
+const productName = "SADA";
+const startPath = "/";
+const productionPort = 3786;
 const trustedOrigins = new Set([
   `http://127.0.0.1:${productionPort}`,
   "http://127.0.0.1:3010",
@@ -121,18 +120,16 @@ function isTrusted(url) {
 }
 
 async function createWindow() {
-  const iconPath = path.join(desktopDir, "assets", desktopTheme === "day" ? "icon-day.png" : "icon.png");
+  const iconPath = path.join(desktopDir, "assets", "icon.png");
   const icon = nativeImage.createFromPath(iconPath);
   app.setName(productName);
-  if (process.platform === "darwin" && desktopTheme === "day" && app.dock) {
-    app.dock.setIcon(icon);
-  }
+  if (process.platform === "darwin" && app.dock) app.dock.setIcon(icon);
   mainWindow = new BrowserWindow({
     width: 1180,
     height: 820,
     minWidth: 900,
     minHeight: 680,
-    backgroundColor: desktopTheme === "day" ? "#ffffff" : "#030906",
+    backgroundColor: "#030906",
     title: productName,
     titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     trafficLightPosition: { x: 18, y: 18 },
@@ -158,8 +155,8 @@ async function createWindow() {
   mainWindow.once("ready-to-show", () => mainWindow?.show());
   const uiErrors = [];
   if (process.env.SADA_DESKTOP_UI_SMOKE === "1") {
-    mainWindow.webContents.on("console-message", (_event, level, message) => {
-      if (level >= 2) uiErrors.push(message);
+    mainWindow.webContents.on("console-message", (details) => {
+      if (details.level === "warning" || details.level === "error") uiErrors.push(details.message);
     });
   }
   if (process.env.SADA_DESKTOP_SMOKE === "1") {
@@ -176,7 +173,7 @@ async function createWindow() {
 
   const baseUrl = await resolveAppUrl();
   const url = new URL(baseUrl);
-  if (desktopTheme === "day" && url.pathname === "/") url.pathname = startPath;
+  if (url.pathname === "/") url.pathname = startPath;
   url.searchParams.set("desktop", "1");
   await mainWindow.loadURL(url.toString());
   if (process.env.SADA_DESKTOP_UI_SMOKE === "1") {
@@ -186,9 +183,12 @@ async function createWindow() {
       await writeFile(process.env.SADA_SCREENSHOT_PATH, screenshot.toPNG());
     }
     const result = await mainWindow.webContents.executeJavaScript(`(async()=>{
-      const wait=()=>new Promise(resolve=>setTimeout(resolve,180));
-      const click=async text=>{const element=[...document.querySelectorAll('button')].find(item=>item.textContent.includes(text));if(!element)throw new Error('Missing button: '+text+' among '+[...document.querySelectorAll('button')].map(item=>item.textContent.trim()).join('|'));element.click();await wait()};
-      const clickAria=async label=>{const element=document.querySelector('button[aria-label="'+label+'"]');if(!element)throw new Error('Missing aria button: '+label);element.click();await wait()};
+      const wait=(delay=180)=>new Promise(resolve=>setTimeout(resolve,delay));
+      const findButton=async text=>{for(let attempt=0;attempt<12;attempt+=1){const element=[...document.querySelectorAll('button')].find(item=>item.textContent.includes(text));if(element)return element;await wait(100)}return null};
+      const click=async text=>{const element=await findButton(text);if(!element)throw new Error('Missing button: '+text+' among '+[...document.querySelectorAll('button')].map(item=>item.textContent.trim()).join('|'));element.click();await wait()};
+      const clickAria=async label=>{let element=null;for(let attempt=0;attempt<12&&!element;attempt+=1){element=document.querySelector('button[aria-label="'+label+'"]');if(!element)await wait(100)}if(!element)throw new Error('Missing aria button: '+label);element.click();await wait()};
+      const waitForHydration=async()=>{for(let attempt=0;attempt<60;attempt+=1){const element=document.querySelector('button[aria-label="Language"]');if(element&&Object.keys(element).some(key=>key.startsWith('__reactProps$')))return;await wait(100)}throw new Error('React hydration did not complete')};
+      await waitForHydration();
       await clickAria('Language');await click('中文');
       const chineseReady=document.querySelector('.app-scroll h1')?.textContent.includes('晚上好');
       await clickAria('Language');await click('English');await clickAria('Language');await click('اردو');
@@ -212,16 +212,13 @@ async function createWindow() {
       await click('Pay PKR');await wait();await wait();await wait();await wait();await wait();
       const paymentSuccessReady=Boolean(document.querySelector('.payment-state-icon.success'));
       const rechargedBalance=document.querySelector('.payment-state-order strong')?.textContent;
-      await click('Return to Wallet');await clickAria('Back');await click('Platform systems');
-      const hub=[...document.querySelectorAll('.system-hub-grid>button')].map(item=>item.textContent.trim());
-      await click('Growth and activity');
-      const modules=[...document.querySelectorAll('.system-module-list>button')].length;
-      await click('New-user journey');
-      const controls=[...document.querySelectorAll('.module-group>button')];controls[0].click();await wait();
-      const partial=document.querySelector('.module-status strong')?.textContent;
-      await click('Run full module review');
-      const complete=document.querySelector('.module-action')?.textContent;
-      await clickAria('Back');await clickAria('Back');await clickAria('Back');await clickAria('Back');
+      await click('Return to Wallet');await clickAria('Back');await clickAria('Profile settings');
+      const emeraldThemeReady=document.querySelector('.site-shell')?.dataset.theme==='night'&&document.querySelector('.theme-choice button[aria-pressed="true"]')?.textContent.includes('Emerald');
+      await click('Bright');
+      const brightThemeReady=document.querySelector('.site-shell')?.dataset.theme==='day'&&document.querySelector('.theme-choice button[aria-pressed="true"]')?.textContent.includes('Bright');
+      await click('Emerald');
+      const themeStored=localStorage.getItem('sada-theme-v1');
+      await clickAria('Back');await clickAria('Back');
       await clickAria('Search SADA');
       const searchSections=document.querySelectorAll('.flow-section').length;
       await click('Maira');
@@ -267,9 +264,9 @@ async function createWindow() {
       const giftFlowReady=Boolean(document.querySelector('.gift-recipient-list'));
       await click('Maira');
       const overflow=document.documentElement.scrollWidth-document.documentElement.clientWidth;
-      return {chineseReady,urduReady,profilePeekReady,avatarMessageReady,paymentReady,paymentMethodsReady,addedMethodReady,paymentSuccessReady,rechargedBalance,hubCount:hub.length,hub,modules,controls:controls.length,partial,complete,searchSections,profileReady,chatReady,inviteReady,roomReady,roomInviteReady,roomMenuReady,storeSearchReady,collectionReady,benefitsReady,upgradeReady,activityRulesReady,phaseReady,leaderboardReady,listingReady,blockedReady,appealsReady,wellbeingReady,partnerStepReady,giftFlowReady,overflow,dir:document.querySelector('.app-frame')?.dir};
+      return {chineseReady,urduReady,profilePeekReady,avatarMessageReady,paymentReady,paymentMethodsReady,addedMethodReady,paymentSuccessReady,rechargedBalance,emeraldThemeReady,brightThemeReady,themeStored,searchSections,profileReady,chatReady,inviteReady,roomReady,roomInviteReady,roomMenuReady,storeSearchReady,collectionReady,benefitsReady,upgradeReady,activityRulesReady,phaseReady,leaderboardReady,listingReady,blockedReady,appealsReady,wellbeingReady,partnerStepReady,giftFlowReady,overflow,dir:document.querySelector('.app-frame')?.dir};
     })()`);
-    if (!result.chineseReady || !result.urduReady || !result.profilePeekReady || !result.avatarMessageReady || !result.paymentReady || result.paymentMethodsReady !== 3 || !result.addedMethodReady || !result.paymentSuccessReady || !result.rechargedBalance?.includes("1,570") || result.hubCount !== 4 || result.modules !== 4 || result.controls < 8 || result.complete !== "Review complete" || result.searchSections < 4 || !result.profileReady || !result.chatReady || result.inviteReady !== "Invites sent" || !result.roomReady || !result.roomInviteReady || !result.roomMenuReady || !result.storeSearchReady || !result.collectionReady || !result.benefitsReady || result.upgradeReady !== "VIP 4 activated" || !result.activityRulesReady || !result.phaseReady || result.leaderboardReady < 6 || result.listingReady !== "Emerald Crescent" || result.blockedReady !== 3 || result.appealsReady !== 2 || !result.wellbeingReady || result.partnerStepReady !== "Review" || !result.giftFlowReady || result.overflow !== 0 || uiErrors.length) {
+    if (!result.chineseReady || !result.urduReady || !result.profilePeekReady || !result.avatarMessageReady || !result.paymentReady || result.paymentMethodsReady !== 3 || !result.addedMethodReady || !result.paymentSuccessReady || !result.rechargedBalance?.includes("1,570") || !result.emeraldThemeReady || !result.brightThemeReady || result.themeStored !== "night" || result.searchSections < 4 || !result.profileReady || !result.chatReady || result.inviteReady !== "Invites sent" || !result.roomReady || !result.roomInviteReady || !result.roomMenuReady || !result.storeSearchReady || !result.collectionReady || !result.benefitsReady || result.upgradeReady !== "VIP 4 activated" || !result.activityRulesReady || !result.phaseReady || result.leaderboardReady < 6 || result.listingReady !== "Emerald Crescent" || result.blockedReady !== 3 || result.appealsReady !== 2 || !result.wellbeingReady || result.partnerStepReady !== "Review" || !result.giftFlowReady || result.overflow !== 0 || uiErrors.length) {
       throw new Error(`UI smoke failed: ${JSON.stringify({ ...result, uiErrors })}`);
     }
     console.log(`[desktop-ui-smoke] ${JSON.stringify(result)}`);
@@ -291,7 +288,8 @@ app.whenReady().then(async () => {
     await createWindow();
   } catch (error) {
     console.error("[SADA desktop]", error);
-    app.quit();
+    if (process.env.SADA_DESKTOP_UI_SMOKE === "1") app.exit(1);
+    else app.quit();
   }
 
   app.on("activate", () => {

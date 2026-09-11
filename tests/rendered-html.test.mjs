@@ -26,18 +26,6 @@ test("server-renders the SADA home experience", async () => {
   assert.doesNotMatch(html, /Complete Interactive Prototype|Building your site/);
 });
 
-test("server-renders the independent SADA daytime entry", async () => {
-  const response = await render("/day");
-  assert.equal(response.status, 200);
-  const html = await response.text();
-  assert.match(html, /data-theme="day"/);
-  assert.match(html, /theme-day/);
-  assert.match(html, /Good evening, Ayaan/);
-  assert.match(html, /home-welcome-banner/);
-  assert.match(html, /SADA میں خوش آمدید/);
-  assert.match(html, /SADA featured banners/);
-});
-
 test("ships the visual assets and interactive client surface", async () => {
   const [page, css, layout, localization, buttonSystem, spacingSystem, typographySystem] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
@@ -84,20 +72,10 @@ test("ships the visual assets and interactive client surface", async () => {
   const latestPrototypeFlows = await readFile(new URL("../app/latest-prototype-flows.tsx", import.meta.url), "utf8");
   const latestPrototypeFlowsCss = await readFile(new URL("../app/latest-prototype-flows.css", import.meta.url), "utf8");
   const desktopMain = await readFile(new URL("../desktop/main.mjs", import.meta.url), "utf8");
-  const desktopDayMain = await readFile(new URL("../desktop/main-day.mjs", import.meta.url), "utf8");
-  const desktopDayBuilder = await readFile(new URL("../electron-builder.day.json", import.meta.url), "utf8");
-  const packageJson = await readFile(new URL("../package.json", import.meta.url), "utf8");
-  assert.match(desktopMain, /desktopTheme === "day"/);
-  assert.match(desktopMain, /desktopTheme === "day" \? 3787 : 3786/);
+  assert.match(desktopMain, /const startPath = "\/"/);
+  assert.match(desktopMain, /const productionPort = 3786/);
   assert.match(desktopMain, /url\.pathname = startPath/);
-  assert.match(desktopDayMain, /SADA_DESKTOP_THEME = "day"/);
-  assert.match(desktopDayBuilder, /"productName": "SADA Day"/);
-  assert.match(desktopDayBuilder, /"appId": "com\.sada\.social\.day"/);
-  assert.match(desktopDayBuilder, /"icon": "desktop\/assets\/icon-day\.png"/);
-  assert.match(desktopDayBuilder, /"version": "0\.1\.1"/);
-  assert.match(packageJson, /"desktop:day:dev"/);
-  assert.match(packageJson, /"desktop:day:pack"/);
-  await access(new URL("../desktop/assets/icon-day.png", import.meta.url));
+  assert.doesNotMatch(desktopMain, /SADA_DESKTOP_THEME/);
   assert.match(systems, /Seven-day check-in/);
   assert.match(systems, /Effective online time/);
   assert.match(systems, /Only effective activity counts/);
@@ -155,11 +133,15 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(prototypeFlows, /CollectionScreen/);
   assert.match(prototypeFlows, /VipBenefitsScreen/);
   assert.match(prototypeFlows, /ProfileSettingsScreen/);
+  assert.match(prototypeFlows, /Color theme/);
+  assert.match(prototypeFlows, /aria-pressed=\{theme==="night"\}/);
+  assert.match(prototypeFlows, /onThemeChange\("day"\)/);
   assert.match(prototypeFlows, /GameHistoryScreen/);
   assert.match(prototypeFlows, /Confirm upgrade/);
   assert.match(page, /PaymentCenterScreen/);
-  assert.match(page, /OperationFlowCenterScreen/);
-  assert.match(page, /Complete operation flows/);
+  assert.doesNotMatch(page, /OperationFlowCenterScreen/);
+  assert.doesNotMatch(page, /Complete operation flows/);
+  assert.doesNotMatch(page, /Platform systems/);
   assert.match(page, /diamondBalance/);
   assert.match(payment, /Easypaisa/);
   assert.match(payment, /JazzCash/);
@@ -185,8 +167,8 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(operationFlows, /Exception branch/);
   assert.match(operationFlowsCss, /flow-step-card/);
   assert.match(operationFlowsCss, /flow-exception-sheet/);
-  assert.match(page, /LatestPrototypeFlowsScreen/);
-  assert.match(page, /16 latest prototype journeys/);
+  assert.doesNotMatch(page, /LatestPrototypeFlowsScreen/);
+  assert.doesNotMatch(page, /16 latest prototype journeys/);
   assert.match(latestPrototypeFlows, /33.*prototype pages mapped/s);
   assert.match(latestPrototypeFlows, /Seven-day check-in/);
   assert.match(latestPrototypeFlows, /Wallet & ledger/);
@@ -203,7 +185,7 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(latestPrototypeFlowsCss, /latest-result-sheet/);
   assert.match(latestPrototypeFlowsCss, /\[data-theme="day"\] \.latest-flow-actions button\.primary/);
   assert.match(latestPrototypeFlowsCss, /linear-gradient\(115deg,#4d88fd 0%,#b84df5 55%,#ed74bd 100%\)/i);
-  assert.match(page, /"operationflows","latestflows","search"/);
+  assert.doesNotMatch(page, /operationflows|latestflows|systemhub|systemsection|systemmodule/);
   assert.match(localization, /"Payments & billing":"支付与账单"/);
   assert.match(localization, /"Payments & billing":"ادائیگی اور بلنگ"/);
   assert.match(localization, /"Payment methods":"支付方式管理"/);
@@ -224,11 +206,14 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(page, /sada-banner-ludo\.png/);
   assert.match(page, /sada-banner-video\.png/);
   assert.match(page, /window\.setInterval/);
+  assert.match(page, /sada-theme-v1/);
+  assert.match(page, /window\.localStorage\.getItem/);
+  assert.match(page, /window\.localStorage\.setItem/);
+  assert.match(page, /ProfileSettingsScreen theme=\{theme\}/);
   await access(new URL("../public/media/sada-welcome-banner-v2.png", import.meta.url));
   await access(new URL("../public/media/sada-banner-ludo.png", import.meta.url));
   await access(new URL("../public/media/sada-banner-video.png", import.meta.url));
   const dayTheme = await readFile(new URL("../app/day-theme.css", import.meta.url), "utf8");
-  const dayEntry = await readFile(new URL("../app/day/page.tsx", import.meta.url), "utf8");
   assert.match(dayTheme, /#4d88fd/i);
   assert.match(dayTheme, /#b84df5/i);
   assert.match(dayTheme, /#ed74bd/i);
@@ -244,10 +229,17 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(dayTheme, /\.theme-day \.interest-grid button\.selected/);
   assert.match(dayTheme, /\.theme-day \.toast/);
   assert.match(dayTheme, /\.theme-day \.market-guard/);
+  assert.match(dayTheme, /Bright-theme UI artwork and interaction-state lock/);
+  assert.match(dayTheme, /\.theme-day \.payment-methods > button > span/);
+  assert.match(dayTheme, /\.theme-day \.onboard-task\.done/);
+  assert.match(dayTheme, /\.theme-day \.room-orbit::before/);
+  assert.match(dayTheme, /\.theme-day \.system-sheet input:focus/);
+  assert.match(dayTheme, /\.theme-day \.people-list button > b/);
   assert.match(dayTheme, /rgba\(77, 136, 253, 0\.14\)/);
-  assert.match(dayEntry, /theme="day"/);
   assert.match(page, /sada-logo-bright\.png/);
+  assert.match(page, /sada-logo-emerald\.png/);
   await access(new URL("../public/media/sada-logo-bright.png", import.meta.url));
+  await access(new URL("../public/media/sada-logo-emerald.png", import.meta.url));
   await access(new URL("../public/media/sample-flower.mp4", import.meta.url));
   assert.match(page, /sample-flower\.mp4/);
   assert.match(page, /onTimeUpdate/);
@@ -256,7 +248,7 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(buttonSystem, /\.payment-primary/);
   assert.match(buttonSystem, /\.profile-peek-actions \.primary/);
   assert.match(buttonSystem, /\.theme-night \.wordmark/);
-  assert.match(buttonSystem, /sada-logo-bright\.png/);
+  assert.doesNotMatch(buttonSystem, /sada-logo-bright\.png/);
   assert.match(buttonSystem, /\.app-frame button:focus-visible/);
   assert.match(spacingSystem, /--space-6:\s*24px/);
   assert.match(spacingSystem, /--page-gutter:\s*20px/);

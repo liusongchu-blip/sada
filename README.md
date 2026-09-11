@@ -1,8 +1,10 @@
-# vinext-starter
+# SADA social platform
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+SADA is a social entertainment client and API for voice rooms, messaging, games,
+activities, virtual goods, VIP, player trading, payments, and safety. It runs on
+vinext/Cloudflare Workers with a D1 database and Drizzle-managed migrations.
+
+Backend setup and route inventory: [`docs/backend-api.md`](docs/backend-api.md).
 
 ## Prerequisites
 
@@ -12,20 +14,35 @@ Drizzle support.
 
 ```bash
 npm install
+npm run db:migrate:local
+npm run db:seed:local
 npm run dev
-npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+Open <http://localhost:3000>. The local seed creates representative SADA data
+for the product and admin surfaces.
 
-## Included Shape
+## Project shape
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+- `app/`: product UI, admin UI, and `/api/v1` request handlers
+- `server/`: shared API validation, authentication, and response helpers
+- `db/` and `drizzle/`: D1 schema, migrations, and local seed data
+- `worker/`: Cloudflare Worker entry point
+- `desktop/`: Electron shell for the macOS desktop client
+- `.openai/hosting.json`: Sites project and D1 binding
+- `wrangler.jsonc`: direct Cloudflare Worker and D1 configuration
+
+## Environment
+
+Copy `.dev.vars.example` to `.dev.vars` for local provider integration. Local
+development can use simulated OTP and payment confirmation; production cannot.
+Never commit `.dev.vars` or provider secrets.
+
+The D1 ID in `wrangler.jsonc` is intentionally a local placeholder. Before a
+direct Cloudflare production deployment, create `sada-social-db` and replace the
+placeholder with the real database ID. See
+[`docs/launch-checklist.md`](docs/launch-checklist.md) for the remaining
+account-owned launch inputs.
 
 ## Workspace Auth Headers
 
@@ -91,8 +108,13 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 
 - `npm run dev`: start local development
 - `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
+- `npm run lint`: run static checks
+- `npm test`: build and run rendered UI and backend contract tests
+- `npm run check`: run the complete CI verification
 - `npm run db:generate`: generate Drizzle migrations after schema changes
+- `npm run db:migrate:local`: apply D1 migrations locally
+- `npm run db:seed:local`: add representative local data
+- `npm run db:migrate:remote`: apply D1 migrations to the configured remote database
 
 ## Learn More
 

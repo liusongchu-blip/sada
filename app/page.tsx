@@ -4,11 +4,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ActivityCenterScreen, InventoryCenterScreen, MarketplaceScreen, PartnerCenterScreen, SafetyCenterScreen } from "./systems";
-import { SystemHubScreen, SystemModuleScreen, SystemSectionId, SystemSectionScreen } from "./mindmap-systems";
 import { CollectionScreen, CreateRoomScreen, GameHistoryScreen, InviteFriendsScreen, ProfileSettingsScreen, SearchScreen, UserProfileScreen, VipBenefitsScreen } from "./prototype-flows";
 import { initialPaymentOrders, PaymentCenterScreen, PaymentOrder } from "./payment";
-import { FlowTarget, OperationFlowCenterScreen } from "./operation-flows";
-import { LatestPrototypeFlowsScreen } from "./latest-prototype-flows";
 import { useAppLocalization } from "./localization";
 import "./polish.css";
 import "./polish-fixes.css";
@@ -228,9 +225,9 @@ function ChatScreen({ name, avatarIndex, onBack, notify }: { name:string; avatar
   return <div className="chat-screen"><div className="chat-head"><button className="screen-back" onClick={onBack} aria-label="Back">‹</button><Avatar name={name} index={avatarIndex}/><span><strong>{name}</strong><small>Online now</small></span><button className="icon-button" onClick={()=>notify("Voice call started")} aria-label="Start voice call"><Icon name="mic"/></button></div><div className="message-stream"><div className="chat-day">Today</div>{messages.map((message,index)=><p key={index} className={message.mine?"mine":"theirs"}>{message.text}<small>{message.mine?"Read":""}</small></p>)}</div><div className="message-composer"><button onClick={()=>notify("Gift sent to Maira")} aria-label="Send quick gift">◇</button><input aria-label="Message" placeholder="Message…" value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")send()}}/><button onClick={send} aria-label="Send message">↑</button></div></div>;
 }
 
-function ProfileScreen({ balance, onBack, onOpen, onPayments, onActivity, onInventory, onMarketplace, onSafety, onPartner, onSystems, onFlows, onAccount, onSettings }: { balance:number; onBack:()=>void; onOpen:(screen:"store"|"vip"|"wallet")=>void; onPayments:()=>void; onActivity:()=>void; onInventory:()=>void; onMarketplace:()=>void; onSafety:()=>void; onPartner:()=>void; onSystems:()=>void; onFlows:()=>void; onAccount:()=>void; onSettings:()=>void }) {
+function ProfileScreen({ balance, onBack, onOpen, onPayments, onActivity, onInventory, onMarketplace, onSafety, onPartner, onAccount, onSettings }: { balance:number; onBack:()=>void; onOpen:(screen:"store"|"vip"|"wallet")=>void; onPayments:()=>void; onActivity:()=>void; onInventory:()=>void; onMarketplace:()=>void; onSafety:()=>void; onPartner:()=>void; onAccount:()=>void; onSettings:()=>void }) {
   const [notifications,setNotifications]=useState(true);
-  return <div className="feature-screen profile-screen"><div className="feature-header"><button className="screen-back" onClick={onBack} aria-label="Back">‹</button><div><small>Your SADA</small><h1>Profile</h1></div><button className="icon-button" onClick={onSettings} aria-label="Profile settings">⚙</button></div><div className="profile-hero"><Avatar name="Ayaan" index={2} size="large"/><h2>Ayaan Khan</h2><p>@ayaan · Karachi</p><span><b>128</b> Friends <b>1.8K</b> Followers <b>VIP 3</b></span><button onClick={onSettings}>Edit profile</button></div><div className="profile-actions"><button onClick={onFlows}><span>↳</span><strong>Complete operation flows</strong><small>16 latest prototype journeys</small><Icon name="chevron"/></button><button onClick={onSystems}><span>▦</span><strong>Platform systems</strong><small>All mind-map modules</small><Icon name="chevron"/></button><button onClick={onActivity}><span>✓</span><strong>Activity center</strong><small>3 rewards are ready</small><Icon name="chevron"/></button><button onClick={onInventory}><span>◌</span><strong>My collection</strong><small>Items, tags and equipment</small><Icon name="chevron"/></button><button onClick={()=>onOpen("wallet")}><span>◆</span><strong>Wallet</strong><small>{balance.toLocaleString()} Diamonds</small><Icon name="chevron"/></button><button onClick={onPayments}><span>PKR</span><strong>Payments & billing</strong><small>Recharge, receipts and refunds</small><Icon name="chevron"/></button><button onClick={()=>onOpen("store")}><span>◇</span><strong>Store</strong><small>Gifts & styles</small><Icon name="chevron"/></button><button onClick={onMarketplace}><span>◈</span><strong>Marketplace</strong><small>Trade eligible collectibles</small><Icon name="chevron"/></button><button onClick={()=>onOpen("vip")}><span>V</span><strong>VIP membership</strong><small>Level 3 · 620 XP</small><Icon name="chevron"/></button></div><div className="settings-list"><button onClick={()=>setNotifications(value=>!value)}><span>Notifications</span><b className={notifications?"toggle on":"toggle"}><i/></b></button><button onClick={onSafety}><span>Safety & privacy</span><small>Protected ›</small></button><button onClick={onPartner}><span>Partner center</span><small>Grade A ›</small></button><button onClick={onAccount}><span>Preview onboarding</span><Icon name="chevron" size={18}/></button><button onClick={onSettings}><span>Language & preferences</span><small>English ›</small></button></div></div>;
+  return <div className="feature-screen profile-screen"><div className="feature-header"><button className="screen-back" onClick={onBack} aria-label="Back">‹</button><div><small>Your SADA</small><h1>Profile</h1></div><button className="icon-button" onClick={onSettings} aria-label="Profile settings">⚙</button></div><div className="profile-hero"><Avatar name="Ayaan" index={2} size="large"/><h2>Ayaan Khan</h2><p>@ayaan · Karachi</p><span><b>128</b> Friends <b>1.8K</b> Followers <b>VIP 3</b></span><button onClick={onSettings}>Edit profile</button></div><div className="profile-actions"><button onClick={onActivity}><span>✓</span><strong>Activity center</strong><small>3 rewards are ready</small><Icon name="chevron"/></button><button onClick={onInventory}><span>◌</span><strong>My collection</strong><small>Items, tags and equipment</small><Icon name="chevron"/></button><button onClick={()=>onOpen("wallet")}><span>◆</span><strong>Wallet</strong><small>{balance.toLocaleString()} Diamonds</small><Icon name="chevron"/></button><button onClick={onPayments}><span>PKR</span><strong>Payments & billing</strong><small>Recharge, receipts and refunds</small><Icon name="chevron"/></button><button onClick={()=>onOpen("store")}><span>◇</span><strong>Store</strong><small>Gifts & styles</small><Icon name="chevron"/></button><button onClick={onMarketplace}><span>◈</span><strong>Marketplace</strong><small>Trade eligible collectibles</small><Icon name="chevron"/></button><button onClick={()=>onOpen("vip")}><span>V</span><strong>VIP membership</strong><small>Level 3 · 620 XP</small><Icon name="chevron"/></button></div><div className="settings-list"><button onClick={()=>setNotifications(value=>!value)}><span>Notifications</span><b className={notifications?"toggle on":"toggle"}><i/></b></button><button onClick={onSafety}><span>Safety & privacy</span><small>Protected ›</small></button><button onClick={onPartner}><span>Partner center</span><small>Grade A ›</small></button><button onClick={onAccount}><span>Preview onboarding</span><Icon name="chevron" size={18}/></button><button onClick={onSettings}><span>Language & preferences</span><small>English ›</small></button></div></div>;
 }
 
 function EconomyScreen({ mode, balance, onBalanceChange, onBack, onPayment, onSearch, onCollection, onBenefits, notify }: { mode:"store"|"vip"|"wallet"; balance:number; onBalanceChange:(balance:number)=>void; onBack:()=>void; onPayment:()=>void; onSearch:()=>void; onCollection:()=>void; onBenefits:(category?:string)=>void; notify:(message:string)=>void }) {
@@ -284,11 +281,13 @@ function EconomyScreen({ mode, balance, onBalanceChange, onBack, onPayment, onSe
 type NavKey = keyof (typeof homeCopy)["en"]["nav"];
 const navItems: { label: NavKey; icon: IconName }[] = [{ label: "Home", icon: "home" }, { label: "Discover", icon: "discover" }, { label: "Play", icon: "play" }, { label: "Inbox", icon: "message" }, { label: "Profile", icon: "profile" }];
 
-export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
+type AppTheme = "night" | "day";
+const THEME_STORAGE_KEY = "sada-theme-v1";
+
+export default function Home({ initialTheme = "night" }: { initialTheme?: AppTheme }) {
+  const [theme, setTheme] = useState<AppTheme>(initialTheme);
   const [accountOpen, setAccountOpen] = useState(false);
-  const [appScreen, setAppScreen] = useState<"home"|"rooms"|"room"|"discover"|"drama"|"games"|"ludo"|"inbox"|"chat"|"profile"|"economy"|"payment"|"activity"|"inventory"|"marketplace"|"safety"|"partner"|"systemhub"|"systemsection"|"systemmodule"|"operationflows"|"latestflows"|"search"|"userprofile"|"invite"|"createroom"|"collection"|"vipbenefits"|"profilesettings"|"gamehistory">("home");
-  const [systemSection,setSystemSection]=useState<SystemSectionId>("growth");
-  const [systemModule,setSystemModule]=useState("new-user");
+  const [appScreen, setAppScreen] = useState<"home"|"rooms"|"room"|"discover"|"drama"|"games"|"ludo"|"inbox"|"chat"|"profile"|"economy"|"payment"|"activity"|"inventory"|"marketplace"|"safety"|"partner"|"search"|"userprofile"|"invite"|"createroom"|"collection"|"vipbenefits"|"profilesettings"|"gamehistory">("home");
   const [economyMode,setEconomyMode]=useState<"store"|"vip"|"wallet">("store");
   const [chatPerson,setChatPerson]=useState({name:"Maira",index:1});
   const [selectedPerson,setSelectedPerson]=useState({name:"Maira",index:1});
@@ -305,6 +304,16 @@ export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
   const copy = homeCopy[locale];
   useAppLocalization(locale);
   useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+      if (savedTheme === "night" || savedTheme === "day") setTheme(savedTheme);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+  useEffect(() => {
+    document.documentElement.style.colorScheme = theme === "day" ? "light" : "dark";
+  }, [theme]);
+  useEffect(() => {
     const open = (event: Event) => setProfilePeek((event as CustomEvent<{name:string;index:number}>).detail);
     const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setProfilePeek(null); };
     window.addEventListener("sada:profile-peek", open);
@@ -315,14 +324,14 @@ export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
     if (theme !== "day" || appScreen !== "home" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const interval = window.setInterval(() => setBannerIndex(index => (index + 1) % homeBanners.length), 5000);
     return () => window.clearInterval(interval);
-  }, [appScreen, bannerIndex, theme]);
+  }, [appScreen, theme]);
   const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(null), 2200); };
-  const joinRoom = () => { setJoined(true); notify("You joined Karachi Night Chai"); };
-  const launchFlowTarget = (target: FlowTarget) => {
-    if (target === "onboarding") { setAccountOpen(true); return; }
-    if (target === "store") { setEconomyMode("store"); setAppScreen("economy"); return; }
-    setAppScreen(target);
+  const changeTheme = (nextTheme: AppTheme) => {
+    setTheme(nextTheme);
+    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    notify(nextTheme === "night" ? "Emerald theme applied" : "Bright theme applied");
   };
+  const joinRoom = () => { setJoined(true); notify("You joined Karachi Night Chai"); };
   const activeBanner = homeBanners[bannerIndex];
   const openActiveBanner = () => {
     if (activeBanner.target === "games") { setActiveNav("Play"); setAppScreen("games"); }
@@ -331,7 +340,7 @@ export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
   return <main className={`site-shell theme-${theme}`} data-theme={theme}><div className="app-frame" lang={locale === "ur" ? "ur-PK" : locale === "zh" ? "zh-CN" : "en-PK"} dir={locale === "ur" ? "rtl" : "ltr"}>
     {accountOpen ? <AccountFlow onComplete={() => { setAccountOpen(false); notify("Welcome to SADA · 80 Diamonds claimed"); }}/> : <>
     {appScreen === "home" ? <>
-    <header className="app-header"><button className={`wordmark${theme === "day" ? " wordmark-image" : ""}`} aria-label="Open account setup" onClick={() => setAccountOpen(true)}>{theme === "day" ? <Image src="/media/sada-logo-bright.png" width={1983} height={793} sizes="116px" priority alt=""/> : "SADA"}</button><div className="header-actions"><button className="icon-button" onClick={()=>setAppScreen("search")} aria-label="Search SADA"><Icon name="search" size={19}/></button><button className="balance" onClick={() => {setEconomyMode("wallet");setAppScreen("economy")}}><Icon name="diamond" size={19}/>{diamondBalance.toLocaleString()}</button><button className="icon-button language-toggle" aria-label="Language" aria-expanded={languageOpen} onClick={() => setLanguageOpen(value => !value)}>{copy.code}</button></div></header>
+    <header className="app-header"><button className="wordmark wordmark-image" aria-label="Open account setup" onClick={() => setAccountOpen(true)}><Image src={theme === "day" ? "/media/sada-logo-bright.png" : "/media/sada-logo-emerald.png"} width={1983} height={793} sizes="116px" priority alt=""/></button><div className="header-actions"><button className="icon-button" onClick={()=>setAppScreen("search")} aria-label="Search SADA"><Icon name="search" size={19}/></button><button className="balance" onClick={() => {setEconomyMode("wallet");setAppScreen("economy")}}><Icon name="diamond" size={19}/>{diamondBalance.toLocaleString()}</button><button className="icon-button language-toggle" aria-label="Language" aria-expanded={languageOpen} onClick={() => setLanguageOpen(value => !value)}>{copy.code}</button></div></header>
     {languageOpen ? <div className="language-menu" role="menu" aria-label="Choose language">{(["en","zh","ur"] as const).map(item => <button key={item} role="menuitem" className={locale === item ? "active" : ""} onClick={() => { setLocale(item); setLanguageOpen(false); notify(homeCopy[item].selectedToast); }}><span>{homeCopy[item].code}</span><strong>{homeCopy[item].language}</strong>{locale === item ? <b>✓</b> : null}</button>)}</div> : null}
     <div className="app-scroll" id="top">
       {theme === "day" ? <section className="home-welcome-banner" aria-roledescription="carousel" aria-label="SADA featured banners">
@@ -358,7 +367,7 @@ export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
     : appScreen === "createroom" ? <CreateRoomScreen onBack={()=>setAppScreen("rooms")} onCreated={()=>{joinRoom();setAppScreen("room")}}/>
     : appScreen === "collection" ? <CollectionScreen onBack={()=>setAppScreen("economy")} notify={notify}/>
     : appScreen === "vipbenefits" ? <VipBenefitsScreen category={vipCategory} onBack={()=>setAppScreen("economy")} notify={notify}/>
-    : appScreen === "profilesettings" ? <ProfileSettingsScreen onBack={()=>setAppScreen("profile")} notify={notify}/>
+    : appScreen === "profilesettings" ? <ProfileSettingsScreen theme={theme} onThemeChange={changeTheme} onBack={()=>setAppScreen("profile")} notify={notify}/>
     : appScreen === "gamehistory" ? <GameHistoryScreen onBack={()=>setAppScreen("games")} onPlay={()=>setAppScreen("ludo")}/>
     : appScreen === "payment" ? <PaymentCenterScreen balance={diamondBalance} orders={paymentOrders} onBalanceChange={setDiamondBalance} onOrdersChange={setPaymentOrders} onBack={()=>{setEconomyMode("wallet");setAppScreen("economy")}} notify={notify}/>
     : appScreen === "activity" ? <ActivityCenterScreen onBack={()=>setAppScreen("profile")} notify={notify}/>
@@ -366,14 +375,9 @@ export default function Home({ theme = "night" }: { theme?: "night" | "day" }) {
     : appScreen === "marketplace" ? <MarketplaceScreen onBack={()=>setAppScreen("profile")} notify={notify}/>
     : appScreen === "safety" ? <SafetyCenterScreen onBack={()=>setAppScreen("profile")} notify={notify}/>
     : appScreen === "partner" ? <PartnerCenterScreen onBack={()=>setAppScreen("profile")} notify={notify}/>
-    : appScreen === "systemhub" ? <SystemHubScreen onBack={()=>setAppScreen("profile")} onOpen={id=>{setSystemSection(id);setAppScreen("systemsection")}}/>
-    : appScreen === "systemsection" ? <SystemSectionScreen sectionId={systemSection} onBack={()=>setAppScreen("systemhub")} onOpen={moduleId=>{setSystemModule(moduleId);setAppScreen("systemmodule")}}/>
-    : appScreen === "systemmodule" ? <SystemModuleScreen sectionId={systemSection} moduleId={systemModule} onBack={()=>setAppScreen("systemsection")} notify={notify}/>
-    : appScreen === "operationflows" ? <OperationFlowCenterScreen onBack={()=>setAppScreen("profile")} onLaunch={launchFlowTarget} notify={notify}/>
-    : appScreen === "latestflows" ? <LatestPrototypeFlowsScreen onBack={()=>setAppScreen("profile")} notify={notify}/>
-    : appScreen === "profile" ? <ProfileScreen balance={diamondBalance} onBack={()=>setAppScreen("home")} onOpen={mode=>{setEconomyMode(mode);setAppScreen("economy")}} onPayments={()=>setAppScreen("payment")} onActivity={()=>setAppScreen("activity")} onInventory={()=>setAppScreen("inventory")} onMarketplace={()=>setAppScreen("marketplace")} onSafety={()=>setAppScreen("safety")} onPartner={()=>setAppScreen("partner")} onSystems={()=>setAppScreen("systemhub")} onFlows={()=>setAppScreen("latestflows")} onAccount={()=>setAccountOpen(true)} onSettings={()=>setAppScreen("profilesettings")}/>
+    : appScreen === "profile" ? <ProfileScreen balance={diamondBalance} onBack={()=>setAppScreen("home")} onOpen={mode=>{setEconomyMode(mode);setAppScreen("economy")}} onPayments={()=>setAppScreen("payment")} onActivity={()=>setAppScreen("activity")} onInventory={()=>setAppScreen("inventory")} onMarketplace={()=>setAppScreen("marketplace")} onSafety={()=>setAppScreen("safety")} onPartner={()=>setAppScreen("partner")} onAccount={()=>setAccountOpen(true)} onSettings={()=>setAppScreen("profilesettings")}/>
     : <EconomyScreen mode={economyMode} balance={diamondBalance} onBalanceChange={setDiamondBalance} onBack={()=>setAppScreen("profile")} onPayment={()=>setAppScreen("payment")} onSearch={()=>setAppScreen("search")} onCollection={()=>setAppScreen("collection")} onBenefits={category=>{setVipCategory(category||"All");setAppScreen("vipbenefits")}} notify={notify}/>} 
-    {!(["room","drama","ludo","chat","economy","payment","systemhub","systemsection","systemmodule","operationflows","latestflows","search","userprofile","invite","createroom","collection","vipbenefits","profilesettings","gamehistory"] as string[]).includes(appScreen) && <nav className="bottom-nav" aria-label="Primary navigation">{navItems.map(item => <button key={item.label} className={activeNav === item.label ? "active" : ""} onClick={() => { setActiveNav(item.label); if(item.label === "Home") setAppScreen("home"); else if(item.label === "Discover") setAppScreen("discover"); else if(item.label === "Play") setAppScreen("games"); else if(item.label === "Inbox") setAppScreen("inbox"); else if(item.label === "Profile") setAppScreen("profile"); }}><span className="nav-icon"><Icon name={item.icon} size={23}/>{item.label === "Inbox" && <i className="unread-dot"/>}</span><span>{copy.nav[item.label]}</span></button>)}</nav>}
+    {!(["room","drama","ludo","chat","economy","payment","search","userprofile","invite","createroom","collection","vipbenefits","profilesettings","gamehistory"] as string[]).includes(appScreen) && <nav className="bottom-nav" aria-label="Primary navigation">{navItems.map(item => <button key={item.label} className={activeNav === item.label ? "active" : ""} onClick={() => { setActiveNav(item.label); if(item.label === "Home") setAppScreen("home"); else if(item.label === "Discover") setAppScreen("discover"); else if(item.label === "Play") setAppScreen("games"); else if(item.label === "Inbox") setAppScreen("inbox"); else if(item.label === "Profile") setAppScreen("profile"); }}><span className="nav-icon"><Icon name={item.icon} size={23}/>{item.label === "Inbox" && <i className="unread-dot"/>}</span><span>{copy.nav[item.label]}</span></button>)}</nav>}
     {joined && <div className="room-dock"><span><i className="pulse-dot"/><b>Karachi Night Chai</b><small>Connected · listening</small></span><button aria-label="Leave room" onClick={() => { setJoined(false); notify("You left the room"); }}><Icon name="close" size={19}/></button></div>}
     </>}
     {profilePeek ? <PlayerQuickCard player={profilePeek} locale={locale} onClose={()=>setProfilePeek(null)} onMessage={()=>{setChatPerson(profilePeek);setProfilePeek(null);setAppScreen("chat")}} onView={()=>{setSelectedPerson(profilePeek);setProfilePeek(null);setAppScreen("userprofile")}}/> : null}
