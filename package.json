@@ -27,7 +27,10 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler d1 migrations apply sada-social-db --local",
     "db:seed:local": "WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler d1 execute sada-social-db --local --file db/seed.sql",
-    "db:migrate:remote": "WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler d1 migrations apply sada-social-db --remote"
+    "db:migrate:remote": "WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler d1 migrations apply sada-social-db --remote",
+    "db:migrate:staging": "WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler d1 migrations apply DB --remote --config wrangler.staging.jsonc",
+    "db:seed:staging": "WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler d1 execute DB --remote --config wrangler.staging.jsonc --file db/seed.sql",
+    "deploy:staging": "npm run build && WRANGLER_LOG_PATH=.wrangler/wrangler.log wrangler deploy --config wrangler.staging.jsonc"
   },
   "build": {
     "appId": "com.sada.social",
