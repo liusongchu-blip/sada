@@ -70,6 +70,50 @@ export type ApiPaymentReceipt = {
   updatedAt: string;
 };
 
+export type ApiPage<T> = { items: T[]; nextCursor: string | null };
+
+export type ApiUser = {
+  id: string;
+  displayName: string;
+  bio: string;
+  city: string;
+  avatarUrl?: string | null;
+  locale: string;
+  vipLevel: number;
+  following?: boolean;
+};
+
+export type ApiRoom = {
+  id: string;
+  hostId: string;
+  title: string;
+  topic: "Stories" | "Poetry" | "Music" | "Games";
+  privacy: "public" | "friends";
+  status: string;
+  listenerCount: number;
+  hostName?: string;
+  hostAvatarUrl?: string | null;
+};
+
+export type ApiSocialMessage = {
+  id: string;
+  senderId: string;
+  senderName?: string;
+  body: string;
+  createdAt: string;
+  roomId?: string;
+  conversationId?: string;
+};
+
+export type ApiConversation = {
+  id: string;
+  updatedAt: string;
+  memberId: string;
+  memberName: string;
+  memberAvatarUrl?: string | null;
+  lastMessage?: string | null;
+};
+
 export const sadaApi = {
   auth: {
     requestOtp: (phone: string) => apiRequest<{ challengeId: string; expiresIn: number; developmentCode?: string }>("/auth/otp/request", {
@@ -96,5 +140,24 @@ export const sadaApi = {
       apiRequest<{ id: string; status: ApiPaymentReceipt["status"] }>("/payments/intents", { method: "POST", body: JSON.stringify(input) }),
     confirm: (id: string, otp: string) => apiRequest<{ id: string; status: ApiPaymentReceipt["status"]; wallet?: SessionUser["wallet"] }>(`/payments/intents/${encodeURIComponent(id)}/confirm`, { method: "POST", body: JSON.stringify({ otp }) }),
     refund: (id: string, reason: string, note: string) => apiRequest<{ id: string; paymentId: string; status: string }>(`/payments/receipts/${encodeURIComponent(id)}/refunds`, { method: "POST", body: JSON.stringify({ reason, note }) }),
+  },
+  social: {
+    rooms: (topic?: ApiRoom["topic"]) => apiRequest<ApiPage<ApiRoom>>(`/rooms${topic ? `?topic=${encodeURIComponent(topic)}` : ""}`),
+    room: (id: string) => apiRequest<ApiRoom>(`/rooms/${encodeURIComponent(id)}`),
+    createRoom: (input: { title: string; topic: ApiRoom["topic"]; privacy: ApiRoom["privacy"] }) =>
+      apiRequest<ApiRoom>("/rooms", { method: "POST", body: JSON.stringify(input) }),
+    joinRoom: (id: string) => apiRequest<{ roomId: string; joined: true }>(`/rooms/${encodeURIComponent(id)}/join`, { method: "POST" }),
+    leaveRoom: (id: string) => apiRequest<{ roomId: string; joined: false }>(`/rooms/${encodeURIComponent(id)}/leave`, { method: "POST" }),
+    roomMessages: (id: string) => apiRequest<ApiPage<ApiSocialMessage>>(`/rooms/${encodeURIComponent(id)}/messages`),
+    sendRoomMessage: (id: string, message: string) => apiRequest<ApiSocialMessage>(`/rooms/${encodeURIComponent(id)}/messages`, { method: "POST", body: JSON.stringify({ body: message }) }),
+    sendRoomGift: (id: string, catalogItemId: string) => apiRequest<{ roomId: string; spentDiamonds: number }>(`/rooms/${encodeURIComponent(id)}/gifts`, { method: "POST", body: JSON.stringify({ catalogItemId, quantity: 1 }) }),
+    users: (query = "") => apiRequest<ApiPage<ApiUser>>(`/users?query=${encodeURIComponent(query)}`),
+    followUser: (id: string, following: boolean) => apiRequest<{ userId: string; following: boolean }>(`/users/${encodeURIComponent(id)}/follow`, { method: following ? "POST" : "DELETE" }),
+    conversations: () => apiRequest<{ items: ApiConversation[] }>("/conversations"),
+    createConversation: (memberId: string) => apiRequest<{ id: string }>("/conversations", { method: "POST", body: JSON.stringify({ memberId }) }),
+    conversationMessages: (id: string) => apiRequest<ApiPage<ApiSocialMessage>>(`/conversations/${encodeURIComponent(id)}/messages`),
+    sendConversationMessage: (id: string, message: string) => apiRequest<ApiSocialMessage>(`/conversations/${encodeURIComponent(id)}/messages`, { method: "POST", body: JSON.stringify({ body: message }) }),
+    report: (input: { targetType: "user" | "room" | "message" | "game" | "drama" | "payment"; targetId: string; reason: "harassment" | "sexual_or_violent" | "scam_or_payment" | "copyright" | "other"; details?: string }) =>
+      apiRequest<{ id: string; status: string; confidential: boolean }>("/reports", { method: "POST", body: JSON.stringify(input) }),
   },
 };

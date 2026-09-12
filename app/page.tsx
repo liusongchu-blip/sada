@@ -4,10 +4,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { ActivityCenterScreen, InventoryCenterScreen, MarketplaceScreen, PartnerCenterScreen, SafetyCenterScreen } from "./systems";
-import { CollectionScreen, CreateRoomScreen, GameHistoryScreen, InviteFriendsScreen, ProfileSettingsScreen, SearchScreen, UserProfileScreen, VipBenefitsScreen } from "./prototype-flows";
+import { CollectionScreen, GameHistoryScreen, InviteFriendsScreen, ProfileSettingsScreen, UserProfileScreen, VipBenefitsScreen } from "./prototype-flows";
 import { initialPaymentOrders, PaymentCenterScreen, PaymentOrder } from "./payment";
 import { useAppLocalization } from "./localization";
-import { sadaApi, SadaApiError, type SessionUser } from "./api-client";
+import { sadaApi, SadaApiError, type ApiRoom, type ApiUser, type SessionUser } from "./api-client";
+import { SocialChatScreen, SocialCreateRoomScreen, SocialInboxScreen, SocialRoomScreen, SocialRoomsScreen, SocialSearchScreen, SocialUserProfileScreen } from "./social";
 import "./polish.css";
 import "./polish-fixes.css";
 import "./button-system.css";
@@ -212,6 +213,8 @@ function AccountFlow({ onComplete }: { onComplete: (user: SessionUser) => void }
   return <div className="account-screen">{progress}<button className="screen-back" onClick={back} aria-label="Back">‹</button><div className="task-progress"><span>{done} / 5 complete</span><b><i style={{width:`${done / 5 * 100}%`}}/></b></div><div className="account-form tasks-form"><small className="account-kicker">Seven-day welcome journey</small><h1>Start with your crew.</h1><p>Five guided moments unlock your 80 Diamond welcome pack.</p>{["Enter a recommended voice room","Speak or follow the host","Add your first friend","Play one Ludo round","Browse the SADA Store"].map((label,index) => <button key={label} className={`onboard-task${tasks[index]?" done":""}`} onClick={() => setTasks(items => items.map((value,i) => i === index ? !value : value))}><span>{tasks[index]?"✓":index+1}</span><b>{label}</b><small>{tasks[index]?"Complete":"Tap to complete demo"}</small></button>)}<button className="join-button" disabled={done < 5 || !verifiedUser} onClick={() => verifiedUser && onComplete(verifiedUser)}>Claim reward & enter SADA</button></div></div>;
 }
 
+// Kept as an offline desktop fallback while the packaged app migrates to the API-backed room flow.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function VoiceRoomsScreen({ onBack, onOpenRoom, onSearch, onCreate }: { onBack: () => void; onOpenRoom: () => void; onSearch:()=>void; onCreate:()=>void }) {
   const [filter, setFilter] = useState("For you");
   const rooms = [
@@ -223,6 +226,7 @@ function VoiceRoomsScreen({ onBack, onOpenRoom, onSearch, onCreate }: { onBack: 
   return <div className="feature-screen"><div className="feature-header"><button className="screen-back" onClick={onBack} aria-label="Back">‹</button><div><small>Live conversations</small><h1>Voice rooms</h1></div><button className="icon-button" onClick={onSearch} aria-label="Search rooms"><Icon name="search"/></button></div><div className="filter-row">{["For you","Music","Games","New"].map(item => <button key={item} className={filter===item?"active":""} onClick={() => setFilter(item)}>{item}</button>)}</div><div className="room-list">{rooms.map(([name,meta,count,index],roomIndex) => <button className="room-list-item" key={name} onClick={onOpenRoom}><span className="room-cover"><Avatar name={name} index={index}/><i className={roomIndex===0?"speaking":""}/></span><span><strong>{name}</strong><small>{meta}</small><em>{roomIndex===0?"Friends are here":"Live now"}</em></span><span className="room-count"><Icon name="users" size={16}/>{count}</span></button>)}</div><button className="create-room-button" onClick={onCreate}>+ Start a room</button></div>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function RoomDetailScreen({ onBack, onJoin, notify }: { onBack: () => void; onJoin: (joined: boolean) => void; notify: (message: string) => void }) {
   const [muted, setMuted] = useState(false);
   const [following, setFollowing] = useState(false);
@@ -262,6 +266,7 @@ function LudoGameScreen({ onBack, notify }: { onBack:()=>void; notify:(message:s
   return <div className="ludo-game"><div className="game-top"><button className="screen-back" onClick={onBack} aria-label="Leave game">‹</button><div><h1>Ludo Nights</h1><small>Friendly match · Round {turn+1}</small></div><button className="icon-button" onClick={reset} aria-label="Restart game">↻</button></div><div className="score-strip">{[["You",0],["Maira",1],["Hamza",2],["Noor",3]].map(([name,index])=><span key={name} className={turn===index?"active":""}><Avatar name={String(name)} index={Number(index)} size="small"/><b>{name}</b><small>{scores[Number(index)]} pts</small></span>)}</div><div className="ludo-board" aria-label="Ludo board"><div className="home-zone red"/><div className="home-zone green"/><div className="home-zone blue"/><div className="home-zone gold"/><div className="board-cross"/><span className="piece p1"/><span className="piece p2"/><span className="piece p3"/><span className="piece p4"/></div><div className="turn-copy"><small>{turn===0?"Your turn":["","Maira’s turn","Hamza’s turn","Noor’s turn"][turn]}</small><h2>{turn===0?"Roll the dice":"Waiting for the next move"}</h2></div><button className={`dice-button${rolling?" rolling":""}`} onClick={roll} disabled={rolling} aria-label="Roll dice"><span>{dice}</span><b>{rolling?"Rolling…":"Roll dice"}</b></button><button className="game-chat" onClick={()=>notify("Game chat opened")}><Icon name="message" size={18}/> Nice move!</button></div>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function InboxScreen({ onBack, onChat, onNewMessage }: { onBack:()=>void; onChat:(name:string,index:number)=>void; onNewMessage:()=>void }) {
   const [tabName,setTabName]=useState("Messages");
   const [accepted,setAccepted]=useState<string[]>([]);
@@ -333,14 +338,17 @@ const navItems: { label: NavKey; icon: IconName }[] = [{ label: "Home", icon: "h
 
 type AppTheme = "night" | "day";
 const THEME_STORAGE_KEY = "sada-theme-v1";
+const FEATURED_ROOM: ApiRoom = { id: "room-stories", hostId: "demo-maira", title: "Karachi Night Stories", topic: "Stories", privacy: "public", status: "live", listenerCount: 128, hostName: "Maira" };
 
 export default function Home({ initialTheme = "night" }: { initialTheme?: AppTheme }) {
   const [theme, setTheme] = useState<AppTheme>(initialTheme);
   const [accountOpen, setAccountOpen] = useState(false);
   const [appScreen, setAppScreen] = useState<"home"|"rooms"|"room"|"discover"|"drama"|"games"|"ludo"|"inbox"|"chat"|"profile"|"economy"|"payment"|"activity"|"inventory"|"marketplace"|"safety"|"partner"|"search"|"userprofile"|"invite"|"createroom"|"collection"|"vipbenefits"|"profilesettings"|"gamehistory">("home");
   const [economyMode,setEconomyMode]=useState<"store"|"vip"|"wallet">("store");
-  const [chatPerson,setChatPerson]=useState({name:"Maira",index:1});
+  const [chatPerson,setChatPerson]=useState<{id?:string;name:string;index:number;conversationId?:string}>({id:"demo-maira",name:"Maira",index:1});
   const [selectedPerson,setSelectedPerson]=useState({name:"Maira",index:1});
+  const [selectedApiUser,setSelectedApiUser]=useState<{user:ApiUser;index:number} | null>(null);
+  const [selectedRoom,setSelectedRoom]=useState<ApiRoom>(FEATURED_ROOM);
   const [vipCategory,setVipCategory]=useState("All");
   const [diamondBalance,setDiamondBalance]=useState(1250);
   const [paymentOrders,setPaymentOrders]=useState<PaymentOrder[]>(initialPaymentOrders);
@@ -394,7 +402,8 @@ export default function Home({ initialTheme = "night" }: { initialTheme?: AppThe
     window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
     notify(nextTheme === "night" ? "Emerald theme applied" : "Bright theme applied");
   };
-  const joinRoom = () => { setJoined(true); notify("You joined Karachi Night Chai"); };
+  const requireSignedIn = () => { setAccountOpen(true); notify("Sign in to continue"); };
+  const openRoom = (room: ApiRoom) => { setSelectedRoom(room); setAppScreen("room"); };
   const activeBanner = homeBanners[bannerIndex];
   const openActiveBanner = () => {
     if (activeBanner.target === "games") { setActiveNav("Play"); setAppScreen("games"); }
@@ -411,23 +420,25 @@ export default function Home({ initialTheme = "night" }: { initialTheme?: AppThe
         <div className="home-banner-dots" aria-label="Choose featured banner">{homeBanners.map((banner,index) => <button key={banner.src} className={index === bannerIndex ? "active" : ""} aria-label={`Show banner ${index + 1}: ${banner.label}`} aria-current={index === bannerIndex ? "true" : undefined} onClick={() => setBannerIndex(index)}/>)}</div>
       </section> : null}
       <h1>{copy.greeting.replace("Ayaan", sessionUser?.displayName ?? "Ayaan")}</h1>
-      <section className="friends-section" aria-labelledby="friends-title"><h2 id="friends-title">{copy.friends}</h2><div className="friend-rail">{friends.map(([name,index]) => <button key={name} aria-label={`Open ${name}'s profile`} onClick={() => {setSelectedPerson({name,index});setAppScreen("userprofile")}}><Avatar name={name} index={index}/></button>)}<button className="add-friend" aria-label="Invite a friend" onClick={() => setAppScreen("invite")}><Icon name="personAdd" size={24}/></button></div></section>
+      <section className="friends-section" aria-labelledby="friends-title"><h2 id="friends-title">{copy.friends}</h2><div className="friend-rail">{friends.map(([name,index]) => <button key={name} aria-label={`Open ${name}'s profile`} onClick={() => {setSelectedApiUser(null);setSelectedPerson({name,index});setAppScreen("userprofile")}}><Avatar name={name} index={index}/></button>)}<button className="add-friend" aria-label="Invite a friend" onClick={() => setAppScreen("invite")}><Icon name="personAdd" size={24}/></button></div></section>
       <button className="home-activity" onClick={() => setAppScreen("activity")}><span><small>{copy.activityMeta}</small><strong>{copy.activityTitle}</strong><i aria-hidden="true"><b/></i></span><b>60%</b></button>
-      <div className="section-heading"><h2>{copy.liveNow}</h2><button aria-label="See all live rooms" onClick={() => setAppScreen("rooms")}><Icon name="chevron" size={18}/></button></div><VoiceRoom copy={copy} onJoin={() => { joinRoom(); setAppScreen("room"); }}/>
+      <div className="section-heading"><h2>{copy.liveNow}</h2><button aria-label="See all live rooms" onClick={() => setAppScreen("rooms")}><Icon name="chevron" size={18}/></button></div><VoiceRoom copy={copy} onJoin={() => openRoom(FEATURED_ROOM)}/>
       <div className="home-shortcuts"><section><div className="section-heading compact"><h2>{copy.playTogether}</h2><button aria-label="See all games" onClick={() => {setActiveNav("Play");setAppScreen("games");}}><Icon name="chevron" size={20}/></button></div><MediaRow kind="game" title={copy.gameTitle} meta={copy.gameMeta} onClick={() => setAppScreen("ludo")}/></section><section><div className="section-heading compact"><h2>{copy.story}</h2><button aria-label="See all stories" onClick={() => {setActiveNav("Discover");setAppScreen("discover");}}><Icon name="chevron" size={20}/></button></div><MediaRow kind="drama" title="Dil Se Door" meta={copy.dramaMeta} onClick={() => setAppScreen("drama")}/></section></div>
     </div></>
-    : appScreen === "rooms" ? <VoiceRoomsScreen onBack={()=>setAppScreen("home")} onOpenRoom={()=>setAppScreen("room")} onSearch={()=>setAppScreen("search")} onCreate={()=>setAppScreen("createroom")}/>
-    : appScreen === "room" ? <RoomDetailScreen onBack={()=>setAppScreen("rooms")} onJoin={setJoined} notify={notify}/>
-    : appScreen === "discover" ? <DiscoverScreen onBack={()=>{setActiveNav("Home");setAppScreen("home")}} onOpenDrama={()=>setAppScreen("drama")} onSearch={()=>setAppScreen("search")} onOpenProfile={(name,index)=>{setSelectedPerson({name,index});setAppScreen("userprofile")}}/>
+    : appScreen === "rooms" ? <SocialRoomsScreen onBack={()=>setAppScreen("home")} onOpenRoom={openRoom} onSearch={()=>setAppScreen("search")} onCreate={()=>setAppScreen("createroom")}/>
+    : appScreen === "room" ? <SocialRoomScreen room={selectedRoom} authenticated={Boolean(sessionUser)} currentUserId={sessionUser?.id} onBack={()=>setAppScreen("rooms")} onJoined={setJoined} onSignIn={requireSignedIn} notify={notify}/>
+    : appScreen === "discover" ? <DiscoverScreen onBack={()=>{setActiveNav("Home");setAppScreen("home")}} onOpenDrama={()=>setAppScreen("drama")} onSearch={()=>setAppScreen("search")} onOpenProfile={(name,index)=>{setSelectedApiUser(null);setSelectedPerson({name,index});setAppScreen("userprofile")}}/>
     : appScreen === "drama" ? <DramaPlayerScreen onBack={()=>setAppScreen("discover")} notify={notify} poster={theme === "day" ? "/media/sada-banner-video.png" : "/media/sada-drama.png"}/>
     : appScreen === "games" ? <GameLobbyScreen onBack={()=>{setActiveNav("Home");setAppScreen("home")}} onPlay={()=>setAppScreen("ludo")} onHistory={()=>setAppScreen("gamehistory")}/>
     : appScreen === "ludo" ? <LudoGameScreen onBack={()=>setAppScreen("games")} notify={notify}/>
-    : appScreen === "inbox" ? <InboxScreen onBack={()=>setAppScreen("home")} onNewMessage={()=>setAppScreen("search")} onChat={(name,index)=>{setChatPerson({name,index});setAppScreen("chat")}}/>
+    : appScreen === "inbox" ? <SocialInboxScreen authenticated={Boolean(sessionUser)} onBack={()=>setAppScreen("home")} onNewMessage={()=>setAppScreen("search")} onChat={peer=>{setChatPerson(peer);setAppScreen("chat")}} onSignIn={requireSignedIn}/>
+    : appScreen === "chat" && chatPerson.id ? <SocialChatScreen peer={{...chatPerson,id:chatPerson.id}} authenticated={Boolean(sessionUser)} currentUserId={sessionUser?.id} onBack={()=>setAppScreen("inbox")} onSignIn={requireSignedIn} notify={notify}/>
     : appScreen === "chat" ? <ChatScreen name={chatPerson.name} avatarIndex={chatPerson.index} onBack={()=>setAppScreen("inbox")} notify={notify}/>
-    : appScreen === "search" ? <SearchScreen onBack={()=>setAppScreen("home")} onOpenRoom={()=>setAppScreen("room")} onOpenProfile={(name,index)=>{setSelectedPerson({name,index});setAppScreen("userprofile")}} onOpenGame={()=>setAppScreen("games")} onOpenDrama={()=>setAppScreen("drama")}/>
-    : appScreen === "userprofile" ? <UserProfileScreen {...selectedPerson} onBack={()=>setAppScreen("home")} onMessage={()=>{setChatPerson(selectedPerson);setAppScreen("chat")}} onOpenRoom={()=>setAppScreen("room")}/>
+    : appScreen === "search" ? <SocialSearchScreen authenticated={Boolean(sessionUser)} onBack={()=>setAppScreen("home")} onOpenRoom={openRoom} onOpenProfile={(user,index)=>{setSelectedApiUser({user,index});setSelectedPerson({name:user.displayName,index});setAppScreen("userprofile")}} onOpenGame={()=>setAppScreen("games")} onOpenDrama={()=>setAppScreen("drama")} onSignIn={requireSignedIn}/>
+    : appScreen === "userprofile" && selectedApiUser ? <SocialUserProfileScreen {...selectedApiUser} authenticated={Boolean(sessionUser)} onBack={()=>setAppScreen("home")} onMessage={peer=>{setChatPerson(peer);setAppScreen("chat")}} onOpenRoom={()=>setAppScreen("rooms")} onSignIn={requireSignedIn} notify={notify}/>
+    : appScreen === "userprofile" ? <UserProfileScreen {...selectedPerson} onBack={()=>setAppScreen("home")} onMessage={()=>{setChatPerson(selectedPerson);setAppScreen("chat")}} onOpenRoom={()=>openRoom(FEATURED_ROOM)}/>
     : appScreen === "invite" ? <InviteFriendsScreen onBack={()=>setAppScreen("home")} notify={notify}/>
-    : appScreen === "createroom" ? <CreateRoomScreen onBack={()=>setAppScreen("rooms")} onCreated={()=>{joinRoom();setAppScreen("room")}}/>
+    : appScreen === "createroom" ? <SocialCreateRoomScreen authenticated={Boolean(sessionUser)} onBack={()=>setAppScreen("rooms")} onCreated={room=>{setSelectedRoom(room);setJoined(true);setAppScreen("room")}} onSignIn={requireSignedIn} notify={notify}/>
     : appScreen === "collection" ? <CollectionScreen onBack={()=>setAppScreen("economy")} notify={notify}/>
     : appScreen === "vipbenefits" ? <VipBenefitsScreen category={vipCategory} onBack={()=>setAppScreen("economy")} notify={notify}/>
     : appScreen === "profilesettings" ? <ProfileSettingsScreen theme={theme} onThemeChange={changeTheme} onBack={()=>setAppScreen("profile")} notify={notify}/>
@@ -441,9 +452,9 @@ export default function Home({ initialTheme = "night" }: { initialTheme?: AppThe
     : appScreen === "profile" ? <ProfileScreen balance={diamondBalance} onBack={()=>setAppScreen("home")} onOpen={mode=>{setEconomyMode(mode);setAppScreen("economy")}} onPayments={()=>setAppScreen("payment")} onActivity={()=>setAppScreen("activity")} onInventory={()=>setAppScreen("inventory")} onMarketplace={()=>setAppScreen("marketplace")} onSafety={()=>setAppScreen("safety")} onPartner={()=>setAppScreen("partner")} onAccount={()=>setAccountOpen(true)} onSettings={()=>setAppScreen("profilesettings")}/>
     : <EconomyScreen mode={economyMode} balance={diamondBalance} onBalanceChange={setDiamondBalance} onBack={()=>setAppScreen("profile")} onPayment={()=>setAppScreen("payment")} onSearch={()=>setAppScreen("search")} onCollection={()=>setAppScreen("collection")} onBenefits={category=>{setVipCategory(category||"All");setAppScreen("vipbenefits")}} notify={notify}/>} 
     {!(["room","drama","ludo","chat","economy","payment","search","userprofile","invite","createroom","collection","vipbenefits","profilesettings","gamehistory"] as string[]).includes(appScreen) && <nav className="bottom-nav" aria-label="Primary navigation">{navItems.map(item => <button key={item.label} className={activeNav === item.label ? "active" : ""} onClick={() => { setActiveNav(item.label); if(item.label === "Home") setAppScreen("home"); else if(item.label === "Discover") setAppScreen("discover"); else if(item.label === "Play") setAppScreen("games"); else if(item.label === "Inbox") setAppScreen("inbox"); else if(item.label === "Profile") setAppScreen("profile"); }}><span className="nav-icon"><Icon name={item.icon} size={23}/>{item.label === "Inbox" && <i className="unread-dot"/>}</span><span>{copy.nav[item.label]}</span></button>)}</nav>}
-    {joined && <div className="room-dock"><span><i className="pulse-dot"/><b>Karachi Night Chai</b><small>Connected · listening</small></span><button aria-label="Leave room" onClick={() => { setJoined(false); notify("You left the room"); }}><Icon name="close" size={19}/></button></div>}
+    {joined && <div className="room-dock"><span><i className="pulse-dot"/><b>{selectedRoom.title}</b><small>Connected · listening</small></span><button aria-label="Leave room" onClick={() => { void sadaApi.social.leaveRoom(selectedRoom.id).then(()=>{setJoined(false);notify("You left the room")}).catch(cause=>notify(cause instanceof Error ? cause.message : "Could not leave the room")); }}><Icon name="close" size={19}/></button></div>}
     </>}
-    {profilePeek ? <PlayerQuickCard player={profilePeek} locale={locale} onClose={()=>setProfilePeek(null)} onMessage={()=>{setChatPerson(profilePeek);setProfilePeek(null);setAppScreen("chat")}} onView={()=>{setSelectedPerson(profilePeek);setProfilePeek(null);setAppScreen("userprofile")}}/> : null}
+    {profilePeek ? <PlayerQuickCard player={profilePeek} locale={locale} onClose={()=>setProfilePeek(null)} onMessage={()=>{setChatPerson(profilePeek);setProfilePeek(null);setAppScreen("chat")}} onView={()=>{setSelectedApiUser(null);setSelectedPerson(profilePeek);setProfilePeek(null);setAppScreen("userprofile")}}/> : null}
     <div className={`toast${toast ? " show" : ""}`} role="status">{toast}</div>
   </div></main>;
 }
