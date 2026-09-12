@@ -64,6 +64,7 @@ button,input,textarea,select { line-height: 1.2; letter-spacing: 0.01em; }
 
 /* Reusable section, list and card rhythm */
 .flow-section { margin-top: var(--space-2); }
+.flow-search + .filter-row { margin-top: var(--space-3); }
 .filter-row,.activity-tabs,.payment-filter,.method-type-tabs,.vip-level-rail,.store-head-actions,.drama-actions { gap: var(--space-2); }
 .flow-list,.room-list,.conversation-list,.people-list,.request-list,.benefit-list,.order-history,.order-list,.payment-orders,.managed-methods,.mission-list,.case-list,.control-list,.settings-list,.phase-task-list,.system-module-list,.detail-rule-list,.gift-recipient-list { gap: var(--space-2); }
 .flow-list>button,.search-feature,.room-list-item,.conversation-list>button,.people-list>button,.benefit-list article,.managed-methods>article,.mission-list>article,.case-list>article,.phase-task-list>article,.system-module-list>button,.gift-recipient-list>button { gap: var(--space-3); padding: var(--space-3); }

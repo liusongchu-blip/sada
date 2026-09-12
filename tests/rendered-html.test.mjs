@@ -245,6 +245,20 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(dayTheme, /rgba\(77, 136, 253, 0\.14\)/);
   assert.match(page, /sada-logo-bright\.png/);
   assert.match(page, /sada-logo-emerald\.png/);
+  assert.match(page, /<Icon name="settings" size=\{23\}\/>/);
+  for (const icon of ["activity", "collection", "wallet", "billing", "store", "marketplace", "vip"]) {
+    assert.match(page, new RegExp(`<ProfileActionIcon name="${icon}"\\/>`));
+  }
+  assert.match(page, /className="profile-action-icon"/);
+  assert.match(buttonSystem, /\.profile-actions>button>span>\.profile-action-icon\s*\{[\s\S]*width:24px;[\s\S]*height:24px;[\s\S]*grid-column:auto;[\s\S]*color:inherit;/);
+  assert.match(page, /profileActionIconPaths/);
+  assert.match(page, /profile-icon-base/);
+  assert.match(page, /profile-icon-detail/);
+  assert.match(page, /profile-icon-market-exchange/);
+  assert.match(page, /profile-icon-vip-crown/);
+  assert.match(buttonSystem, /--profile-icon-detail:#624b24/);
+  assert.match(buttonSystem, /\.profile-action-icon \.profile-icon-detail\{fill:var\(--profile-icon-detail\);opacity:1\}/);
+  assert.match(dayTheme, /--profile-icon-detail:\s*#ffffff/);
   await access(new URL("../public/media/sada-logo-bright.png", import.meta.url));
   await access(new URL("../public/media/sada-logo-emerald.png", import.meta.url));
   await access(new URL("../public/media/sample-flower.mp4", import.meta.url));
@@ -257,8 +271,13 @@ test("ships the visual assets and interactive client surface", async () => {
   assert.match(buttonSystem, /\.theme-night \.wordmark/);
   assert.doesNotMatch(buttonSystem, /sada-logo-bright\.png/);
   assert.match(buttonSystem, /\.app-frame button:focus-visible/);
+  assert.match(buttonSystem, /Font glyphs such as ‹ and ×/);
+  assert.match(buttonSystem, /\.screen-back::before/);
+  assert.match(buttonSystem, /\.screen-back::after/);
+  assert.match(buttonSystem, /\.sheet-close::before/);
   assert.match(spacingSystem, /--space-6:\s*24px/);
   assert.match(spacingSystem, /--page-gutter:\s*20px/);
+  assert.match(spacingSystem, /\.flow-search\s*\+\s*\.filter-row\s*\{\s*margin-top:\s*var\(--space-3\)/);
   assert.match(spacingSystem, /\.profile-peek-stats/);
   assert.match(typographySystem, /Source Han Sans SADA/);
   assert.match(typographySystem, /--weight-display:\s*800/);
